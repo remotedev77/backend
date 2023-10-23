@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  web:
+    image: remote-image
+    build: .
+    command: >
+      bash -c "gunicorn -b 0.0.0.0:8000 myproject.wsgi:application"
+
+    container_name: remote
+    volumes:
+      - .:/music_service
+    ports:
+      - "8000:8000"
