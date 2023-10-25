@@ -3,6 +3,7 @@ from typing import List, Dict
 from django.db.models import Prefetch
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from my_app.pagination import QuestionPagination
 from my_app.models import Question, Answer, Statistic
@@ -11,7 +12,7 @@ from my_app.services import UpdateOrCreateStatistic
 
 
 class GetQuestionAPIView(APIView):
-    
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         all_question_ids = Question.objects.values_list('id', flat=True) #save this data on chace for optimize
         random_question_ids = random.sample(list(all_question_ids), 10)
@@ -23,6 +24,7 @@ class GetQuestionAPIView(APIView):
     
 
 class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for question it also send false
+    permission_classes = [IsAuthenticated]
     def get(self, request, question_id, answer_id):
         question_check = Question.objects.filter(id=question_id).prefetch_related(
             Prefetch("answers", queryset=Answer.objects.filter(is_correct=True))
@@ -44,6 +46,7 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
         return Response("Question not found", status=status.HTTP_404_NOT_FOUND)
     
 class CheckSimulyatorAPIView(APIView):
+    # permission_classes = [IsAuthenticated]
     def get(self, request):
         request_list = [
     {
@@ -85,6 +88,7 @@ class CheckSimulyatorAPIView(APIView):
         for req in range(len(request_list)):
             for res in range(len(question_data)):
                 if request_list[req]['q_id'] == question_data[res]['id']:
+                    print("as")
                     data: Dict[str, object] = {
                         "question": "",
                         "user_answer": "",
@@ -98,14 +102,14 @@ class CheckSimulyatorAPIView(APIView):
                     user_answer = [answer for answer in answers if answer['id'] == request_list[req]['a_id']][0]['answer']
                     data['user_answer'] = user_answer
                     
-                    # if request_list[req]['a_id'] == question_data[res]['answers'][0]['id']:
-                    #     data['is_correct'] = True
-                    #     UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True)
-                    # else:
-                    #     data['is_correct'] = False
-                    #     data['description'] = question_data[res]['correct_answer_description']
+                    if request_list[req]['a_id'] == question_data[res]['answers'][0]['id']:
+                        data['is_correct'] = True
+                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True)
+                    else:
+                        data['is_correct'] = False
+                        data['description'] = question_data[res]['correct_answer_description']
                         
-                    #     UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False)
+                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False)
                     response_data.append(data)
         # return Response(question_data, status=status.HTTP_200_OK)
         return Response(response_data, status=status.HTTP_200_OK)

@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.db.models import F, Case, When, Value, CharField, FloatField, ExpressionWrapper, Count
 from django.db.models.functions import Cast, Round
@@ -8,6 +9,7 @@ from my_app.services import UpdateOrCreateStatistic
 
 
 class GetUserStatistic(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         data_statistic = {
             'category': 'Не решал',
