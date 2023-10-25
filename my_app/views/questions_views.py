@@ -37,9 +37,9 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
             for correct in question.answers.all():
                 if correct.id == answer_id:
                     correct_answer_check = True
-                    UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=question_id, correct=True)
+                    UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=question_id, correct=True, user=request.user)
                 else:
-                    UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=question_id, correct=False)
+                    UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=question_id, correct=False, user=request.user)
             if correct_answer_check:
                 return Response(correct_answer_check, status=status.HTTP_200_OK)
             return Response({"description": question_description, "check": correct_answer_check}, status=status.HTTP_200_OK)
@@ -48,34 +48,7 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
 class CheckSimulyatorAPIView(APIView):
     # permission_classes = [IsAuthenticated]
     def get(self, request):
-        request_list = [
-    {
-        "q_id": 13,
-        "a_id": 8
-    },
-    {
-        "q_id": 15,
-        "a_id": 16,
-        
-    },
-    {
-        "q_id": 17,
-        "a_id": 24
-    },
-    {
-        "q_id": 18,
-        "a_id": 28
-    },
-    {
-        "q_id": 19,
-        "a_id": 32
-    },
-    {
-        "q_id": 20,
-        "a_id": 36
-    }
-
-]
+        request_list = request.data
         q_ids = [q['q_id'] for q in request_list]
         response_data = []
 
@@ -104,12 +77,12 @@ class CheckSimulyatorAPIView(APIView):
                     
                     if request_list[req]['a_id'] == question_data[res]['answers'][0]['id']:
                         data['is_correct'] = True
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True)
+                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True, user=request.user)
                     else:
                         data['is_correct'] = False
                         data['description'] = question_data[res]['correct_answer_description']
                         
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False)
+                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False, user=request.user)
                     response_data.append(data)
         # return Response(question_data, status=status.HTTP_200_OK)
         return Response(response_data, status=status.HTTP_200_OK)

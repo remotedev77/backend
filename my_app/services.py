@@ -6,8 +6,8 @@ from my_app.models import Question
 User = get_user_model()
 class UpdateOrCreateStatistic:
     @classmethod
-    def create_or_update(cls, django_model: Type[models.Model], question_id: int, correct:bool = True):
-        user = User.objects.filter(username="tami").first() #change to auth user
+    def create_or_update(cls, django_model: Type[models.Model], question_id: int, correct:bool = True, user=None):
+        # user = User.objects.filter(username="tami").first() #change to auth user
         questionID = Question.objects.filter(id=question_id).first()
         statistic_question = django_model.objects.select_related("question_id").filter(question_id=questionID).first()
         

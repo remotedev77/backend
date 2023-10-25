@@ -38,6 +38,7 @@ class User(AbstractUser):
     is_superuser = models.BooleanField(default=False)
     father_name = models.CharField(max_length=50)
     main_test_count = models.IntegerField(default=0)
+    organization = models.CharField(max_length=100)
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
