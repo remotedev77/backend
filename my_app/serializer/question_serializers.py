@@ -8,3 +8,9 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id','question','image', 'answers')
+
+class QuestionSimulyatorSerializer(serializers.ModelSerializer):
+    answers = AnswerSerializer(many=True)
+    class Meta:
+        model = Question
+        fields = ('id','question','correct_answer_description', 'answers')

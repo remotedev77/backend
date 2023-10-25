@@ -1,11 +1,12 @@
-import random
+import random, json
+from typing import List, Dict
 from django.db.models import Prefetch
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from my_app.pagination import QuestionPagination
 from my_app.models import Question, Answer, Statistic
-from my_app.serializer.question_serializers import QuestionSerializer
+from my_app.serializer.question_serializers import QuestionSerializer, QuestionSimulyatorSerializer
 from my_app.services import UpdateOrCreateStatistic
 
 
@@ -13,7 +14,7 @@ class GetQuestionAPIView(APIView):
     
     def get(self, request):
         all_question_ids = Question.objects.values_list('id', flat=True) #save this data on chace for optimize
-        random_question_ids = random.sample(list(all_question_ids), 3)
+        random_question_ids = random.sample(list(all_question_ids), 10)
         random_questions = Question.objects.filter(id__in=random_question_ids)
 
         serializer = QuestionSerializer(random_questions, many=True)
@@ -41,6 +42,74 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
                 return Response(correct_answer_check, status=status.HTTP_200_OK)
             return Response({"description": question_description, "check": correct_answer_check}, status=status.HTTP_200_OK)
         return Response("Question not found", status=status.HTTP_404_NOT_FOUND)
+    
+class CheckSimulyatorAPIView(APIView):
+    def get(self, request):
+        request_list = [
+    {
+        "q_id": 13,
+        "a_id": 8
+    },
+    {
+        "q_id": 15,
+        "a_id": 16,
+        
+    },
+    {
+        "q_id": 17,
+        "a_id": 24
+    },
+    {
+        "q_id": 18,
+        "a_id": 28
+    },
+    {
+        "q_id": 19,
+        "a_id": 32
+    },
+    {
+        "q_id": 20,
+        "a_id": 36
+    }
+
+]
+        q_ids = [q['q_id'] for q in request_list]
+        response_data = []
+
+    
+        questions = Question.objects.filter(id__in=q_ids).prefetch_related(
+            Prefetch("answers", queryset=Answer.objects.all())
+        )
+
+        question_data = QuestionSimulyatorSerializer(questions, many=True).data
+        for req in range(len(request_list)):
+            for res in range(len(question_data)):
+                if request_list[req]['q_id'] == question_data[res]['id']:
+                    data: Dict[str, object] = {
+                        "question": "",
+                        "user_answer": "",
+                        "correct_answer": "",
+                        "is_correct": False,
+                        "description": ""
+                    }
+                    data["question"] = question_data[res]['question']
+                    data['correct_answer'] = question_data[res]['answers'][0]['answer']
+                    answers = question_data[res]['answers']
+                    user_answer = [answer for answer in answers if answer['id'] == request_list[req]['a_id']][0]['answer']
+                    data['user_answer'] = user_answer
+                    
+                    # if request_list[req]['a_id'] == question_data[res]['answers'][0]['id']:
+                    #     data['is_correct'] = True
+                    #     UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True)
+                    # else:
+                    #     data['is_correct'] = False
+                    #     data['description'] = question_data[res]['correct_answer_description']
+                        
+                    #     UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False)
+                    response_data.append(data)
+        # return Response(question_data, status=status.HTTP_200_OK)
+        return Response(response_data, status=status.HTTP_200_OK)
+        
     
 
 
