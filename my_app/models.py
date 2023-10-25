@@ -19,8 +19,8 @@ class Question(models.Model):
     image = models.FileField(upload_to='images', blank=True, null=True)
     correct_answer_description = models.TextField()
 
-    def __str__(self):
-        return self.question
+    # def __str__(self):
+    #     return self.question
 
 
 class Answer(models.Model):
@@ -50,13 +50,13 @@ class Statistic(models.Model):
         return self.user_id.username
     
     def save(self, *args, **kwargs):
-        if self.incorrect_answers != float(0):
-            persentail = (self.correct_answers/(self.correct_answers+self.incorrect_answers))*100
-            print(persentail)
-            if persentail < 50:
-                self.category = Statistic.CategoryChoices.BILMIREM
-            elif 50 <=persentail <90:
-                self.category = Statistic.CategoryChoices.SEHVLEREDIREM
-            else:
-                self.category = Statistic.CategoryChoices.TAMBILIREM
+        print(self.correct_answers, self.incorrect_answers)
+        persentail = (self.correct_answers/(self.correct_answers+self.incorrect_answers))*100
+        
+        if persentail < 50:
+            self.category = Statistic.CategoryChoices.BILMIREM
+        elif 50 <=persentail <90:
+            self.category = Statistic.CategoryChoices.SEHVLEREDIREM
+        else:
+            self.category = Statistic.CategoryChoices.TAMBILIREM
         return super().save(*args, **kwargs)

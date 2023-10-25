@@ -4,4 +4,4 @@ from my_app.models import Answer
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ('id','answer')
+        fields = ('id','answer', 'is_correct')

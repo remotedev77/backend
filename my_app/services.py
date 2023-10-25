@@ -5,19 +5,22 @@ from my_app.models import Question
 # Create your models here.
 User = get_user_model()
 class UpdateOrCreateStatistic:
-
-
     @classmethod
     def create_or_update(cls, django_model: Type[models.Model], question_id: int, correct:bool = True):
         user = User.objects.filter(username="tami").first() #change to auth user
-        questionID = Question.objects.get(id=question_id)
-        question, create = django_model.objects.get_or_create(question_id=questionID, user_id=user)
-        if not create:
+        questionID = Question.objects.filter(id=question_id).first()
+        statistic_question = django_model.objects.select_related("question_id").filter(question_id=questionID).first()
+        
+        if statistic_question is None:
             if correct:
-                question.correct_answers +=1
-                question.save()
+                django_model.objects.create(question_id=questionID, user_id=user, correct_answers=1)
             else:
-                question.incorrect_answers +=1
-                question.save()
-
+                django_model.objects.create(question_id=questionID, user_id=user, incorrect_answers=1)
+        else:
+            if correct:
+                statistic_question.correct_answers+=1
+                statistic_question.save()
+            else:
+                statistic_question.incorrect_answers+=1
+                statistic_question.save()
 
