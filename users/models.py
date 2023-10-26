@@ -37,6 +37,7 @@ class User(AbstractUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     father_name = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
     main_test_count = models.IntegerField(default=0)
     objects = UserManager()
     
@@ -44,4 +45,4 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['first_name', 'last_name', 'father_name']
 
     def __str__(self):
-        return self.name
+        return self.email

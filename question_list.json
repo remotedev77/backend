@@ -25,6 +25,3 @@
     }
 
 ]
-answer = {
-    'id': {'answer': str, 'is_correct': bool}
-}
