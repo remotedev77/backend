@@ -1,13 +1,13 @@
 import random, json
 from typing import List, Dict
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from my_app.pagination import QuestionPagination
-from my_app.models import Question, Answer, Statistic
-from my_app.serializer.question_serializers import QuestionSerializer, QuestionSimulyatorSerializer
+from my_app.models import Question, Answer, Statistic, User
+from my_app.serializer.question_serializers import QuestionSerializer, QuestionSimulyatorSerializer, GetQuestinByCategorySerializer
 from my_app.services import UpdateOrCreateStatistic
 
 
@@ -49,19 +49,19 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
 class CheckSimulyatorAPIView(APIView):
     # permission_classes = [IsAuthenticated]
     def get(self, request):
-        request_list = request.data
+        # request_list = request.data
         user = request.user
-        # request_list  = [
-        #     {
-        #         "q_id": 1,
-        #         "a_id": 1
-        #     },
-        #     {
-        #         "q_id": 2,
-        #         "a_id": 4
-        #     }
+        request_list  = [
+            {
+                "q_id": 1,
+                "a_id": 1
+            },
+            {
+                "q_id": 2,
+                "a_id": 4
+            }
 
-        # ]
+        ]
         q_ids = [q['q_id'] for q in request_list]
         response_data = []
 
@@ -71,90 +71,46 @@ class CheckSimulyatorAPIView(APIView):
         )
 
         question_data = QuestionSimulyatorSerializer(questions, many=True).data
-        for req in range(len(request_list)):
-            for res in range(len(question_data)):
-                if request_list[req]['q_id'] == question_data[res]['id']:
-                    user_select_answer_id = request_list[req]['a_id']
-                    user_select_answer_obj = question_data[res]['answers'][user_select_answer_id]
-                    correct_answer = [value for key, value in question_data[res]['answers'].items() if value['is_correct'] == True][0]['answer']  
-                    data: Dict[str, object] = {
-                        "question": "",
-                        "user_answer": "",
-                        "correct_answer": "",
-                        "is_correct": False,
-                        "description": ""
-                    }
+        # for req in range(len(request_list)):
+        #     for res in range(len(question_data)):
+        #         if request_list[req]['q_id'] == question_data[res]['id']:
+        #             user_select_answer_id = request_list[req]['a_id']
+        #             user_select_answer_obj = question_data[res]['answers'][user_select_answer_id]
+        #             correct_answer = [value for key, value in question_data[res]['answers'].items() if value['is_correct'] == True][0]['answer']  
+        #             data: Dict[str, object] = {
+        #                 "question": "",
+        #                 "user_answer": "",
+        #                 "correct_answer": "",
+        #                 "is_correct": False,
+        #                 "description": ""
+        #             }
             
-                    data["question"] = question_data[res]['question']
-                    data['user_answer'] = user_select_answer_obj['answer']
-                    data['correct_answer'] = correct_answer
-                    data['is_correct'] = user_select_answer_obj['is_correct']
-                    if user_select_answer_obj['is_correct']:
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True, user=user)
-                    else:
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False, user=user)
+        #             data["question"] = question_data[res]['question']
+        #             data['user_answer'] = user_select_answer_obj['answer']
+        #             data['correct_answer'] = correct_answer
+        #             data['is_correct'] = user_select_answer_obj['is_correct']
+        #             if user_select_answer_obj['is_correct']:
+        #                 UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True, user=user)
+        #             else:
+        #                 UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False, user=user)
                     
-                    response_data.append(data)
-        user.main_test_count +=1
-        user.save()
-        # return Response(question_data, status=status.HTTP_200_OK)
+        #             response_data.append(data)
+        # user.main_test_count +=1
+        # user.save()
+        return Response(question_data, status=status.HTTP_200_OK)
         return Response(response_data, status=status.HTTP_200_OK)
 
-# class CheckSimulyatorAPIView(APIView):
-#     # permission_classes = [IsAuthenticated]
-#     def get(self, request):
-#         # request_list = request.data
-#         request_list  = [
-#             {
-#                 "q_id": 1,
-#                 "a_id": 1
-#             },
-#             {
-#                 "q_id": 2,
-#                 "a_id": 5
-#             }
 
-#         ]
-#         q_ids = [q['q_id'] for q in request_list]
-#         response_data = []
-
-    
-#         questions = Question.objects.filter(id__in=q_ids).prefetch_related(
-#             Prefetch("answers", queryset=Answer.objects.all())
-#         )
-
-#         question_data = QuestionSimulyatorSerializer(questions, many=True).data
-#         for req in range(len(request_list)):
-#             for res in range(len(question_data)):
-#                 if request_list[req]['q_id'] == question_data[res]['id']:
-#                     user_select_answer_id = request_list[req]['a_id']
-#                     user_select_answer_obj = question_data[res]['answers'][user_select_answer_id]        
-#                     data: Dict[str, object] = {
-#                         "question": "",
-#                         "user_answer": "",
-#                         "correct_answer": "",
-#                         "is_correct": False,
-#                         "description": ""
-#                     }
-            
-#                     data["question"] = question_data[res]['question']
-#         #             data['correct_answer'] = question_data[res]['answers'][0]['answer']
-#         #             answers = question_data[res]['answers']
-#         #             user_answer = [answer for answer in answers if answer['id'] == request_list[req]['a_id']][0]['answer']
-#                     data['user_answer'] = user_select_answer_obj['answer']
-                    
-#         #             if request_list[req]['a_id'] == question_data[res]['answers'][0]['id']:
-#         #                 data['is_correct'] = True
-#         #                 UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True, user=request.user)
-#         #             else:
-#         #                 data['is_correct'] = False
-#         #                 data['description'] = question_data[res]['correct_answer_description']
-                        
-#         #                 UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False, user=request.user)
-#         #             response_data.append(data)
-#         return Response(question_data, status=status.HTTP_200_OK)
-#         return Response(response_data, status=status.HTTP_200_OK)
-        
+class GetQuestionByCategory(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, category_name:str):
+        user = request.user
+        # user = User.objects.get(email = 'tami@mail.ru')
+        category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(Q(user_id=user) & Q(category=category_name))
+        if category_questions.exists():
+            ser = GetQuestinByCategorySerializer(category_questions, many=True)
+            return Response(ser.data, status=status.HTTP_200_OK)
+        return Response([], status=status.HTTP_404_NOT_FOUND)
 
 
     

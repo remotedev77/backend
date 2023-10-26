@@ -6,6 +6,6 @@ urlpatterns = [
     path('get-questions/', questions_views.GetQuestionAPIView.as_view()),
     path('check-question/<int:question_id>/<int:answer_id>', questions_views.CheckQuestion.as_view()),
     path('get-user-statistic/', statistic_views.GetUserStatistic.as_view()),
-    path('check-simulyator/', questions_views.CheckSimulyatorAPIView.as_view())
-
+    path('check-simulyator/', questions_views.CheckSimulyatorAPIView.as_view()),
+    path('get-category-question/<str:category_name>/', questions_views.GetQuestionByCategory.as_view())
 ]
