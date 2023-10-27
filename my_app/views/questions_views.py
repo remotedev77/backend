@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from my_app.pagination import QuestionPagination
+from admin_app.pagination import QuestionPagination
 from my_app.models import Question, Answer, Statistic
 from my_app.serializer.question_serializers import QuestionSerializer, QuestionSimulyatorSerializer, GetQuestinByCategorySerializer
 from my_app.services import UpdateOrCreateStatistic

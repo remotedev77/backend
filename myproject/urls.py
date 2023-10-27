@@ -30,6 +30,7 @@ urlpatterns = [
                                        cache_timeout=0), name='schema-redoc'),
     path("__debug__/", include("debug_toolbar.urls")),
     path('app/', include('my_app.urls')),
-    path('user/', include('users.urls'))
+    path('user/', include('users.urls')),
+    path('admin-api/', include('admin_app.urls'))
 
 ]
