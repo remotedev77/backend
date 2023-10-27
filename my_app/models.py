@@ -19,8 +19,8 @@ class Question(models.Model):
     image = models.FileField(upload_to='images', blank=True, null=True)
     correct_answer_description = models.TextField()
 
-    # def __str__(self):
-    #     return self.question
+    def __str__(self):
+        return self.question
 
 
 class Answer(models.Model):
@@ -47,10 +47,9 @@ class Statistic(models.Model):
     incorrect_answers = models.FloatField(default=0)
 
     def __str__(self):
-        return self.user_id.username
+        return self.user_id.email
     
     def save(self, *args, **kwargs):
-        print(self.correct_answers, self.incorrect_answers)
         persentail = (self.correct_answers/(self.correct_answers+self.incorrect_answers))*100
         
         if persentail < 50:

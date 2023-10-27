@@ -1,7 +1,7 @@
 from typing import Type
 from django.db import models
 from django.contrib.auth import get_user_model
-from my_app.models import Question
+from my_app.models import Question, User
 # Create your models here.
 User = get_user_model()
 class UpdateOrCreateStatistic:
