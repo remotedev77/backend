@@ -17,7 +17,7 @@ class Exam(models.Model):
 class Question(models.Model):
     question = models.CharField(max_length=1000)
     image = models.FileField(upload_to='images', blank=True, null=True)
-    correct_answer_description = models.TextField()
+    correct_answer_description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.question
