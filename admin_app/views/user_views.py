@@ -15,7 +15,7 @@ class ChangeUserAPIView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ChangeUserAdminSerializer(instance)
         return Response(serializer.data)
-
+    @swagger_auto_schema(responses={200: ChangeUserAdminSerializer}, request_body=ChangeUserAdminSerializer)
     def put(self, request, user_id):
         try:
             instance = User.objects.get(id=user_id)

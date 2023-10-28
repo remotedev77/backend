@@ -28,7 +28,7 @@ class ChangeAnswerAdminAPIView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ChangeAnswerAdminSerializer(instance)
         return Response(serializer.data)
-
+    @swagger_auto_schema(responses={200: ChangeAnswerAdminSerializer}, request_body=ChangeAnswerAdminSerializer)
     def put(self, request, answer_id):
         try:
             instance = Answer.objects.get(id=answer_id)

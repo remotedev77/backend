@@ -4,7 +4,7 @@ from my_app.models import User
 class ChangeUserAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        exclude = ['date_joined', 'last_login','groups', 'user_permissions']
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
