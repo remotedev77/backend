@@ -47,12 +47,12 @@ INSTALLED_APPS = [
     "corsheaders",
     
     'rest_framework_simplejwt',
-    "debug_toolbar",
+    # "debug_toolbar",
     'drf_yasg',
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",

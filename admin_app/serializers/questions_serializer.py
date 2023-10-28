@@ -18,3 +18,11 @@ class ChangeQuestionAdminSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
+class CreateQuestionAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = "__all__"
+
+    def create(self, validated_data):
+        return Question.objects.create(**validated_data)
