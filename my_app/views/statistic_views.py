@@ -30,7 +30,7 @@ class GetUserStatistic(APIView):
         data_statistic['statistic'] = statistic_no_show
         statistic=list(statistic)
         statistic.append(data_statistic)
-        category_counts = Statistic.objects.values('category').annotate(category_count=Count('category'))
+        category_counts = Statistic.objects.select_related('user_id').filter(user_id = user).values('category').annotate(category_count=Count('category'))
         category_no_show_count = questions_count['questions_count']-statistic_question_count['question_count']
         
         data_count['category_count'] = category_no_show_count
