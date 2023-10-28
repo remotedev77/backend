@@ -41,7 +41,7 @@ class Statistic(models.Model):
         
         
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    question_id = models.OneToOneField(Question, on_delete=models.CASCADE, related_name='statistics')
+    question_id = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='statistics')
     category = models.CharField(max_length=50,choices=CategoryChoices.choices, default=CategoryChoices.BILMIREM)
     correct_answers = models.FloatField(default=0)
     incorrect_answers = models.FloatField(default=0)

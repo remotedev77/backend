@@ -25,7 +25,6 @@ class QuestionSimulyatorSerializer(serializers.ModelSerializer):
         representation['answers'] = answers
         return representation
 
-
 class GetQuestinByCategorySerializer(serializers.ModelSerializer):
     question_id = QuestionSerializer()
     class Meta:

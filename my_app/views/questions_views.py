@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from admin_app.pagination import QuestionPagination
-from my_app.models import Question, Answer, Statistic
-from my_app.serializer.question_serializers import QuestionSerializer, QuestionSimulyatorSerializer, GetQuestinByCategorySerializer
+from my_app.models import Question, Answer, Statistic, User
+from my_app.serializer.question_serializers import *
 from my_app.services import UpdateOrCreateStatistic
 
 
@@ -47,12 +47,17 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
 
 class CheckSimulyatorAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request):
+    def post(self, request):
         request_list = request.data
         user = request.user
         q_ids = [q['q_id'] for q in request_list]
         response_data = []
-
+        correct_answers_count = 0
+        incorrect_answers_count = 0
+        check_count = {
+            'correct_answers_count': 0,
+            'incorrect_answers_count': 0
+        }
 
         questions = Question.objects.filter(id__in=q_ids).prefetch_related(
             Prefetch("answers", queryset=Answer.objects.all())
@@ -66,11 +71,11 @@ class CheckSimulyatorAPIView(APIView):
                     user_select_answer_obj = question_data[res]['answers'][user_select_answer_id]
                     correct_answer = [value for key, value in question_data[res]['answers'].items() if value['is_correct'] == True][0]['answer']
                     data: Dict[str, object] = {
-                        "question": "",
-                        "user_answer": "",
-                        "correct_answer": "",
-                        "is_correct": False,
-                        "description": ""
+                        'question': '',
+                        'user_answer': '',
+                        'correct_answer': '',
+                        'is_correct': False,
+                        'description': ''
                     }
 
                     data["question"] = question_data[res]['question']
@@ -78,11 +83,19 @@ class CheckSimulyatorAPIView(APIView):
                     data['correct_answer'] = correct_answer
                     data['is_correct'] = user_select_answer_obj['is_correct']
                     if user_select_answer_obj['is_correct']:
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=True, user=user)
+                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'],
+                                                                  correct=True, user=user)
+                        correct_answers_count += 1
                     else:
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'], correct=False, user=user)
+                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'],
+                                                                  correct=False, user=user)
+                        incorrect_answers_count += 1
+                        data['description'] = question_data[res]['correct_answer_description']
 
                     response_data.append(data)
+        check_count['correct_answers_count'] = correct_answers_count
+        check_count['incorrect_answers_count'] = incorrect_answers_count
+        response_data.append(check_count)
         user.main_test_count +=1
         user.save()
         # return Response(question_data, status=status.HTTP_200_OK)
@@ -93,12 +106,21 @@ class GetQuestionByCategory(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, category_name:str):
         user = request.user
-        # user = User.objects.get(email = 'tami@mail.ru')
-        category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(Q(user_id=user) & Q(category=category_name))
-        if category_questions.exists():
-            ser = GetQuestinByCategorySerializer(category_questions, many=True)
-            return Response(ser.data, status=status.HTTP_200_OK)
-        return Response([], status=status.HTTP_404_NOT_FOUND)
+        if category_name == 'Не решал':
+            category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(user_id=user).values_list("question_id")
+            
+            if category_questions.exists():
+                questions = Question.objects.prefetch_related('answers').exclude(id__in=category_questions)
+                ser = QuestionSerializer(questions, many=True)
+                return Response(ser.data, status=status.HTTP_200_OK)
+        else:
+            category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(Q(user_id=user) & Q(category=category_name)).values_list("question_id")
+            
+            if category_questions.exists():
+                questions = Question.objects.prefetch_related('answers').filter(id__in=category_questions)
+                ser = QuestionSerializer(questions, many=True)
+                return Response(ser.data, status=status.HTTP_200_OK)
+            return Response([], status=status.HTTP_404_NOT_FOUND)
 
 
 
