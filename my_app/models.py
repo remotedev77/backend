@@ -19,8 +19,8 @@ class Question(models.Model):
     image = models.FileField(upload_to='images', blank=True, null=True)
     correct_answer_description = models.TextField(blank=True, null=True)
 
-    def __str__(self):
-        return self.question
+    # def __str__(self):
+    #     return self.question
 
 
 class Answer(models.Model):

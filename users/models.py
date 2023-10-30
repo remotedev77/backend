@@ -37,8 +37,9 @@ class User(AbstractUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     father_name = models.CharField(max_length=50)
-    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True) #delete blank and null
     main_test_count = models.IntegerField(default=0)
+    final_test = models.BooleanField(default=False, blank=True, null=True) #delete blank and null
     objects = UserManager()
     
     USERNAME_FIELD = 'email'

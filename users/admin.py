@@ -17,7 +17,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'password1', 'password2','father_name',
+        fields = ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
                     'company_name', 'is_admin', 'is_staff', 'is_admin', 'is_superuser', 'is_active')
 
     def clean_password2(self):
@@ -46,7 +46,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'father_name',
+        fields = ('email', 'first_name', 'last_name', 'father_name','final_test',
                     'company_name', 'password',  'is_active', 'is_admin', 'is_superuser')
 
 
@@ -58,12 +58,12 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'first_name', 'last_name', 'father_name',
-                    'company_name', 'is_admin', 'is_staff', 'is_superuser', 'is_active')
+    list_display = ('email', 'first_name', 'last_name', 'father_name', 'final_test',
+                    'company_name', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count')
     list_filter = ('is_admin',)
     fieldsets = (
-        (None, {'fields': ('email', 'first_name', 'last_name', 'father_name',
-                    'company_name', 'password')}),
+        (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test',
+                    'company_name', 'password', 'main_test_count')}),
         
         ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser', 'is_active')}),
     )
@@ -72,8 +72,8 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'password1', 'password2','father_name',
-                    'company_name', 'is_admin', 'is_staff', 'is_superuser', 'is_active'),
+            'fields': ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
+                    'company_name', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count'),
         }),
     )
     search_fields = ('email',)

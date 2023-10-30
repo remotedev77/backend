@@ -44,7 +44,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class UserGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "father_name", "main_test_count"]
+        fields = ["email", "first_name", "last_name", "father_name", "main_test_count", "final_test"]
 
 
     
