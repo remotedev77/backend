@@ -24,7 +24,6 @@ COPY myproject myproject
 COPY users users
 COPY manage.py .
 COPY requirements.txt .
-
 RUN pip install -r requirements.txt
 
 # EXPOSE 8000

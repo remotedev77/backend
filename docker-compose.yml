@@ -27,18 +27,18 @@ services:
     ports:
       - 8000:8000
 
-  nginx:
-    build:
-      dockerfile: ./Dockerfile
-      context: ./docker/nginx/
-    container_name: remote_nginx
-    volumes:
-      - static_volume:/remote/static
-      - media_volume:/remote/media
-    depends_on:
-      - remote_project
-    ports:
-      - "${EXTERNAL_PORT}:80"
+  # nginx:
+  #   build:
+  #     dockerfile: ./Dockerfile
+  #     context: ./docker/nginx/
+  #   container_name: remote_nginx
+  #   volumes:
+  #     - static_volume:/remote/static
+  #     - media_volume:/remote/media
+  #   depends_on:
+  #     - remote_project
+  #   ports:
+  #     - "${EXTERNAL_PORT}:80"
 
 volumes:
   static_volume: 
