@@ -10,24 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import os, environ
+import os
 from pathlib import Path
 from django.conf import settings
+from dotenv import dotenv_values
+
+config = dotenv_values('myproject/.env')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-env = environ.Env()
-environ.Env.read_env()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = config["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config["DEBUG"]
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config["ALLOWED_HOSTS"].split()
 
 
 # Application definition
@@ -115,10 +118,23 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': config["POSTGRES_HOST"],
+        'PORT': config["POSTGRES_PORT"],
+        'USER': config["POSTGRES_USER"],
+        'PASSWORD': config["POSTGRES_PASSWORD"],
+        'NAME': config["POSTGRES_DB"]
     }
 }
+
+
+#Update for database for deploy
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -157,6 +173,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type
