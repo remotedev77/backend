@@ -107,7 +107,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://remoteproject-production.up.railway.app',
     'https://edu-simulator.ru',
     'http://0.0.0.0:8000',
-    'http://127.0.0.1:8000'
+    'http://127.0.0.1:8000',
+    'https://api.edu-simulator.ru'
 ]
 
 
