@@ -6,11 +6,13 @@ urlpatterns = [
     path('get-all-questions/', questions_views.GetAllQuestionAdminAPIView.as_view()),
     path('chage-question/<int:question_id>/', questions_views.ChangeQuestionAdminAPIView.as_view()),
     path('create-question/', questions_views.CreateQuestionAdminAPIView.as_view()),
+     path('upload-csv-question-file/', questions_views.CreateQusetionFromCSVAPIView.as_view()),
 
     path('get-all-answers/', answers_views.GetAllAnswerAdminAPIView.as_view()),
     path('chage-answer/<int:answer_id>/', answers_views.ChangeAnswerAdminAPIView.as_view()),
     path('create-answer/', answers_views.CreateAnswerAdminAPIView.as_view()),
 
     path('change-user/<int:user_id>/', user_views.ChangeUserAPIView.as_view()),
-    path('create-user/', user_views.CreateUserAdminAPIView.as_view())
+    path('create-user/', user_views.CreateUserAdminAPIView.as_view()),
+   
 ]

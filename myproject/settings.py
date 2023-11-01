@@ -25,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = config["SECRET_KEY"]
+# SECRET_KEY = config["SECRET_KEY"] # For deploy
 SECRET_KEY="django-insecure-0z6#tj6pz*b$k1#v8of)1h@mdd+&q-bqthjad#9((zm5y=a=w+"
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = config["DEBUG"]
+# DEBUG = config["DEBUG"] # For deploy
 DEBUG=True
-# ALLOWED_HOSTS = config["ALLOWED_HOSTS"].split()
+# ALLOWED_HOSTS = config["ALLOWED_HOSTS"].split() # For deploy
 
 ALLOWED_HOSTS = ["*"]
 # Application definition
@@ -90,19 +90,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:3000',
-#     'http://localhost:5174',
-#     'http://127.0.0.1:5173',
-#     'http://localhost:5173',
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://localhost:5173',
+    'https://edu-simulator.ru'
 
-# ]
+]
+
 CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTP_ONLY = True
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
-    'https://remoteproject-production.up.railway.app'
+    'https://remoteproject-production.up.railway.app',
+    'https://edu-simulator.ru',
+    'http://0.0.0.0:8000',
+    'http://127.0.0.1:8000'
 ]
 
 
@@ -115,25 +120,26 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'HOST': config["POSTGRES_HOST"],
-#         'PORT': config["POSTGRES_PORT"],
-#         'USER': config["POSTGRES_USER"],
-#         'PASSWORD': config["POSTGRES_PASSWORD"],
-#         'NAME': config["POSTGRES_DB"]
-#     }
-# }
 
 
-#Update for database for deploy
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        'ENGINE': "django.db.backends.mysql",
+        'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
+        'HOST': config["HOST"],
+        'PORT': config["PORT"],
+        'USER': config["USER"],
+        'PASSWORD': config["PASSWORD"],
+        'NAME': config["NAME"],
     }
 }
+#Update for database for deploy
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
