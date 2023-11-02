@@ -23,11 +23,13 @@ class AnswerTabularInline(admin.TabularInline):
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerTabularInline]
     list_display = ['question']
+    search_fields = ['question']
 
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ['answer']
+    search_fields = ['answer']
 
 
     

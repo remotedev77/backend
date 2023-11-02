@@ -73,9 +73,9 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
 
                     response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
-        check_count['incorrect_answers_count'] = incorrect_answers_count
+        check_count['incorrect_answers_count'] = 50 - correct_answers_count
         
-        if (correct_answers_count//50)*100 > 74:
+        if (correct_answers_count/50)*100 > 74:
             check_count['success'] = True
         response_data.append(check_count)
         return Response(response_data, status=status.HTTP_200_OK)
@@ -130,14 +130,16 @@ class CheckSimulyatorAPIView(APIView):
 
                     response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
-        check_count['incorrect_answers_count'] = incorrect_answers_count
+        check_count['incorrect_answers_count'] = 50 - correct_answers_count
         exam_type = request_list[-1]['exam_type']
-        if exam_type == 'simulator' and (correct_answers_count//50)*100 > 74:
+        print(correct_answers_count/50*100)
+        if exam_type == 'simulator' and correct_answers_count/50*100 > 74:
+            print(correct_answers_count)
             check_count['success'] = True
             user.main_test_count +=1
             user.save()
             
-        elif exam_type == 'final_test' and (correct_answers_count//50)*100 > 74:
+        elif exam_type == 'final_test' and (correct_answers_count/50)*100 > 74:
             user.final_test = True
             check_count['success'] = True
             user.save()
