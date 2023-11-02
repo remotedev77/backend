@@ -70,18 +70,20 @@ class CreateQusetionFromCSVAPIView(APIView):
     def post(self, request, format=None):
         file_obj = request.data['filename']
         
-        df = pd.read_csv(file_obj, on_bad_lines='skip',delimiter=';')
-        df_data = df[['Вопрос','Ответ','Правильный']]
-        # for data in df_data:
-            
-        
-        # decoded_file = file_upload.read().decode()
-        
-        # io_string = io.StringIO(decoded_file)
-        # csvFile = csv.reader(io_string)
-        # for row in csvFile:
-        #     print(csvFile["Вопрос"])
-        #     break
-        
-        
-        # return Response(status=status.HTTP_200_OK)
+        df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
+        df[['Вопрос','Ответ','Код вопроса', 'Правильный']]
+        df_data_question = df['Вопрос']
+        df_data_answer = df['Ответ']
+        df_data_iscorrect = df['Правильный']
+        a=0
+        for i in range(len(df_data_answer)):
+            a+=1
+            print(a)
+            questions = Question.objects.filter(question=df_data_question[i])
+            if not questions.exists():
+                question = Question.objects.create(question=df_data_question[i])
+                answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+            else:
+                answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+
+        return Response(status=status.HTTP_200_OK)

@@ -15,7 +15,7 @@ class GetQuestionAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         all_question_ids = Question.objects.values_list('id', flat=True) #save this data on chace for optimize
-        random_question_ids = random.sample(list(all_question_ids), 3)
+        random_question_ids = random.sample(list(all_question_ids), 50)
         random_questions = Question.objects.filter(id__in=random_question_ids)
 
         serializer = QuestionSerializer(random_questions, many=True)
@@ -35,7 +35,7 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
         check_count = {
             'correct_answers_count': 0,
             'incorrect_answers_count': 0,
-            "success": True
+            "success": False
         }
 
         questions = Question.objects.filter(id__in=q_ids).prefetch_related(
@@ -74,9 +74,9 @@ class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for 
                     response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count
-        if incorrect_answers_count != 0:
-            if (correct_answers_count//incorrect_answers_count)*100 < 74:
-                check_count['success'] = False
+        
+        if (correct_answers_count//50)*100 > 74:
+            check_count['success'] = True
         response_data.append(check_count)
         return Response(response_data, status=status.HTTP_200_OK)
 
@@ -91,7 +91,8 @@ class CheckSimulyatorAPIView(APIView):
         incorrect_answers_count = 0
         check_count = {
             'correct_answers_count': 0,
-            'incorrect_answers_count': 0
+            'incorrect_answers_count': 0,
+            'success': False
         }
 
         questions = Question.objects.filter(id__in=q_ids).prefetch_related(
@@ -130,26 +131,18 @@ class CheckSimulyatorAPIView(APIView):
                     response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count
-        if incorrect_answers_count != 0:
-            if (correct_answers_count//incorrect_answers_count)*100 < 74:
-                check_count['success'] = False
+        exam_type = request_list[-1]['exam_type']
+        if exam_type == 'simulator' and (correct_answers_count//50)*100 > 74:
+            check_count['success'] = True
+            user.main_test_count +=1
+            user.save()
+            
+        elif exam_type == 'final_test' and (correct_answers_count//50)*100 > 74:
+            user.final_test = True
+            check_count['success'] = True
+            user.save()
 
         response_data.append(check_count)
-        exam_type = request_list[-1]['exam_type']
-        if incorrect_answers_count != 0:
-            if exam_type == 'simulator' and (correct_answers_count//incorrect_answers_count)*100 > 74:
-                user.main_test_count +=1
-                user.save()
-            elif exam_type == 'final_test' and (correct_answers_count//incorrect_answers_count)*100 > 74:
-                user.final_test = True
-                user.save()
-        else:
-            if exam_type == 'simulator':
-                user.main_test_count +=1
-                user.save()
-            elif exam_type == 'final_test':
-                user.final_test = True
-                user.save()
 
         return Response(response_data, status=status.HTTP_200_OK)
 
@@ -160,9 +153,12 @@ class GetQuestionByCategory(APIView):
         user = request.user
         if category_name == 'Не решал':
             category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(user_id=user).values_list("question_id")
-
             if category_questions.exists():
                 questions = Question.objects.prefetch_related('answers').exclude(id__in=category_questions)
+                ser = QuestionSerializer(questions, many=True)
+                return Response(ser.data, status=status.HTTP_200_OK)
+            else:
+                questions = Question.objects.prefetch_related('answers').all()
                 ser = QuestionSerializer(questions, many=True)
                 return Response(ser.data, status=status.HTTP_200_OK)
         else:
