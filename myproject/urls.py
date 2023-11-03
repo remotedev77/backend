@@ -32,3 +32,7 @@ urlpatterns = [
     path('admin-api/', include('admin_app.urls'))
 
 ]
+admin.site.site_header = "Edu Simulator Admin"
+admin.site.site_title = "Edu Simulator"
+admin.site.index_title = "Welcome to Edu Simulator Admin"
+admin.site.site_url="https://edu-simulator.ru/"

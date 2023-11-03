@@ -2,9 +2,10 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
-
+from django.contrib.auth.models import Permission
 from my_app.models import User
 
 
@@ -46,12 +47,14 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'father_name','final_test',
-                    'company_name', 'password',  'is_active', 'is_admin', 'is_superuser')
+        fields = "__all__"
+
+
 
 
 class UserAdmin(BaseUserAdmin):
     # The forms to add and change user instances
+
     form = UserChangeForm
     add_form = UserCreationForm
 
@@ -65,7 +68,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test',
                     'company_name', 'password', 'main_test_count')}),
         
-        ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser', 'is_active')}),
+        ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser','user_permissions', 'is_active')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -78,8 +81,12 @@ class UserAdmin(BaseUserAdmin):
     )
     search_fields = ('email',)
     ordering = ('email',)
-    filter_horizontal = ("user_permissions",)
+    filter_horizontal = ("groups", "user_permissions")
+
 
 
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)
+
+
+admin.site.register(Permission)
