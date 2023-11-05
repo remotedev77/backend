@@ -9,7 +9,7 @@ from rest_framework import status
 from my_app.models import Question, Answer, Statistic, User
 from my_app.serializer.question_serializers import *
 # from my_app.services import UpdateOrCreateStatistic
-from my_app.utils import check_exam
+from my_app.utils import check_exam, check_marafon
 
 
 class GetQuestionAPIView(APIView):
@@ -24,7 +24,7 @@ class GetQuestionAPIView(APIView):
         return Response(serializer.data)
 
 
-class CheckExamAPIView(APIView): #PROBLEM: if user send id that is not include for question it also send false
+class CheckExamAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         request_list = request.data
@@ -37,64 +37,23 @@ class CheckExamAPIView(APIView): #PROBLEM: if user send id that is not include f
         response_data = check_exam(request_list=request_list, question_data=question_data, user=user)
           
         return Response(response_data, status=status.HTTP_200_OK)         
-        # return Response(question_data, status=status.HTTP_200_OK)
 
 
-class CheckQuestion(APIView): #PROBLEM: if user send id that is not include for question it also send false
+
+class CheckQuestion(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         request_list = request.data
         user = request.user
-        q_ids = [q['q_id'] for q in request_list[:len(request_list)-1]]
-        response_data = []
-        correct_answers_count = 0
-        incorrect_answers_count = 0
-        check_count = {
-            'correct_answers_count': 0,
-            'incorrect_answers_count': 0,
-            "success": False
-        }
-
+        q_ids = [q['q_id'] for q in request_list]
         questions = Question.objects.filter(id__in=q_ids).prefetch_related(
             Prefetch("answers", queryset=Answer.objects.all())
         )
-
         question_data = QuestionExamSerializer(questions, many=True).data
-        for req in range(len(request_list)-1):
-            for res in range(len(question_data)):
-                if request_list[req]['q_id'] == question_data[res]['id']:
-                    user_select_answer_id = request_list[req]['a_id']
-                    user_select_answer_obj = question_data[res]['answers'][user_select_answer_id]
-                    correct_answer = [value for key, value in question_data[res]['answers'].items() if value['is_correct'] == True][0]['answer']
-                    data: Dict[str, object] = {
-                        'question': '',
-                        'user_answer': '',
-                        'correct_answer': '',
-                        'is_correct': False,
-                        'description': ''
-                    }
+        if request_list == []:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        response_data = check_marafon(request_list=request_list, question_data=question_data, user=user)
 
-                    data["question"] = question_data[res]['question']
-                    data['user_answer'] = user_select_answer_obj['answer']
-                    data['correct_answer'] = correct_answer
-                    data['is_correct'] = user_select_answer_obj['is_correct']
-                    if user_select_answer_obj['is_correct']:
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'],
-                                                                  correct=True, user=user)
-                        correct_answers_count += 1
-                    else:
-                        UpdateOrCreateStatistic.create_or_update(django_model=Statistic, question_id=request_list[req]['q_id'],
-                                                                  correct=False, user=user)
-                        incorrect_answers_count += 1
-                        data['description'] = question_data[res]['correct_answer_description']
-
-                    response_data.append(data)
-        check_count['correct_answers_count'] = correct_answers_count
-        check_count['incorrect_answers_count'] = 50 - correct_answers_count
-        
-        if (correct_answers_count/50)*100 > 74:
-            check_count['success'] = True
-        response_data.append(check_count)
         return Response(response_data, status=status.HTTP_200_OK)
 
 

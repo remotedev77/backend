@@ -53,10 +53,6 @@ def check_marafon(request_list: list, question_data: OrderedDict, user):
                 response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count
-    if correct_answers_count/50*100 > 74:
-        check_count['success'] = True
-        user.main_test_count +=1
-        user.save()
     response_data.append(check_count)
     
     return response_data
