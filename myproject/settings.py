@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,24 +124,24 @@ REST_FRAMEWORK = {
 
 
 
-# DATABASES = {
-#     "default": {
-#         'ENGINE': "django.db.backends.mysql",
-#         'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
-#         'HOST': config["HOST"],
-#         'PORT': config["PORT"],
-#         'USER': config["USER"],
-#         'PASSWORD': config["PASSWORD"],
-#         'NAME': config["NAME"],
-#     }
-# }
-#Update for database for deploy
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        'ENGINE': "django.db.backends.mysql",
+        'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
+        'HOST': config["HOST"],
+        'PORT': config["PORT"],
+        'USER': config["USER"],
+        'PASSWORD': config["PASSWORD"],
+        'NAME': config["NAME"],
     }
 }
+#Update for database for deploy
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
