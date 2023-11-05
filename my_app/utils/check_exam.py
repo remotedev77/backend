@@ -2,10 +2,10 @@ from collections import OrderedDict
 from typing import Dict
 
 from my_app.services import UpdateOrCreateStatistic
-from my_app.models import Statistic, User
+from my_app.models import Statistic
 
 
-def check_exam(request_list: list, question_data: OrderedDict, user: User):
+def check_exam(request_list: list, question_data: OrderedDict, user):
     response_data = []
     correct_answers_count = 0
     incorrect_answers_count = 0
@@ -53,7 +53,7 @@ def check_exam(request_list: list, question_data: OrderedDict, user: User):
                 response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count
-    if correct_answers_count/2*100 > 74:
+    if correct_answers_count/50*100 > 74:
         check_count['success'] = True
         user.main_test_count +=1
         user.save()
