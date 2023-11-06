@@ -25,6 +25,38 @@ class QuestionExamSerializer(serializers.ModelSerializer):
         representation['answers'] = answers
         return representation
 
+class QuestionMarafonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ('id','question','correct_answer_description', 'answers')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        answers = {}
+        for answer in instance.answers.all():
+            answers[answer.id] = {
+                'answer': answer.answer,
+                'is_correct': answer.is_correct,
+            }
+        representation['answers'] = answers
+        return representation
+    
+class QuestionFinalTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ('id','question','correct_answer_description', 'answers')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        answers = {}
+        for answer in instance.answers.all():
+            answers[answer.id] = {
+                'answer': answer.answer,
+                'is_correct': answer.is_correct,
+            }
+        representation['answers'] = answers
+        return representation
+
 class GetQuestinByCategorySerializer(serializers.ModelSerializer):
     question_id = QuestionSerializer()
     class Meta:

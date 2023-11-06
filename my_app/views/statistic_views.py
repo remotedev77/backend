@@ -26,7 +26,7 @@ class GetUserStatistic(APIView):
         )
         statistic_question_count = Statistic.objects.select_related('user_id').filter(user_id = user).aggregate(question_count=Count('id'))
         
-        statistic_no_show = round((questions_count['questions_count']-statistic_question_count['question_count'])/questions_count['questions_count'],2)*100
+        statistic_no_show = (questions_count['questions_count']-statistic_question_count['question_count'])/questions_count['questions_count']*100
         data_statistic['statistic'] = statistic_no_show
         statistic=list(statistic)
         statistic.append(data_statistic)

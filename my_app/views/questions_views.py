@@ -8,8 +8,8 @@ from rest_framework import status
 # from admin_app.pagination import QuestionPagination
 from my_app.models import Question, Answer, Statistic, User
 from my_app.serializer.question_serializers import *
-# from my_app.services import UpdateOrCreateStatistic
-from my_app.utils import check_exam, check_marafon
+from my_app.permissions.final_test_permission import *
+from my_app.utils import check_exam, check_marafon, check_final_test, check_by_category
 
 
 class GetQuestionAPIView(APIView):
@@ -35,12 +35,11 @@ class CheckExamAPIView(APIView):
         )
         question_data = QuestionExamSerializer(questions, many=True).data
         response_data = check_exam(request_list=request_list, question_data=question_data, user=user)
-          
-        return Response(response_data, status=status.HTTP_200_OK)         
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 
-class CheckQuestion(APIView):
+class CheckMarafonQuestion(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         request_list = request.data
@@ -49,7 +48,7 @@ class CheckQuestion(APIView):
         questions = Question.objects.filter(id__in=q_ids).prefetch_related(
             Prefetch("answers", queryset=Answer.objects.all())
         )
-        question_data = QuestionExamSerializer(questions, many=True).data
+        question_data = QuestionMarafonSerializer(questions, many=True).data
         if request_list == []:
             return Response(status=status.HTTP_204_NO_CONTENT)
         response_data = check_marafon(request_list=request_list, question_data=question_data, user=user)
@@ -57,6 +56,32 @@ class CheckQuestion(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
+class CheckFinalTestAPIView(APIView):
+    permission_classes = [IsAuthenticated, CheckFinalTestPermission]
+    def post(self, request):
+        request_list = request.data
+        user = request.user
+        q_ids = [q['q_id'] for q in request_list]
+        questions = Question.objects.filter(id__in=q_ids).prefetch_related(
+            Prefetch("answers", queryset=Answer.objects.all())
+        )
+        question_data = QuestionFinalTestSerializer(questions, many=True).data
+        response_data = check_final_test(request_list=request_list, question_data=question_data, user=user)
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class CheckCategoryQuestionAPIView(APIView): #change this api
+    permission_classes = [IsAuthenticated, CheckFinalTestPermission]
+    def post(self, request):
+        request_list = request.data
+        user = request.user
+        q_ids = [q['q_id'] for q in request_list]
+        questions = Question.objects.filter(id__in=q_ids).prefetch_related(
+            Prefetch("answers", queryset=Answer.objects.all())
+        )
+        question_data = QuestionFinalTestSerializer(questions, many=True).data
+        response_data = check_by_category(request_list=request_list, question_data=question_data, user=user)
+        return Response(response_data, status=status.HTTP_200_OK)
 
 class GetQuestionByCategory(APIView):
     permission_classes = [IsAuthenticated]

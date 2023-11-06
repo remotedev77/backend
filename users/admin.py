@@ -7,7 +7,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Permission
 from my_app.models import User
-
+from users.models import Company
 
 # Register your models here.
 class UserCreationForm(forms.ModelForm):
@@ -19,7 +19,7 @@ class UserCreationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
-                    'company_name', 'is_admin', 'is_staff', 'is_admin', 'is_superuser', 'is_active')
+                    'organization', 'is_admin', 'is_staff', 'is_admin', 'is_superuser', 'is_active')
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -62,13 +62,15 @@ class UserAdmin(BaseUserAdmin):
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
     list_display = ('email', 'first_name', 'last_name', 'father_name', 'final_test',
-                    'company_name', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count')
+                    'organization', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count')
     list_filter = ('is_admin',)
+    # search_fields = []
+    # autocomplete_fields = ["organization"]
     fieldsets = (
         (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test',
-                    'company_name', 'password', 'main_test_count')}),
+                    'organization', 'password', 'main_test_count')}),
         
-        ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser','user_permissions', 'is_active')}),
+        ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser','groups','is_active')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -76,17 +78,17 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
-                    'company_name', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count'),
+                    'organization', 'is_admin', 'is_staff','groups','is_superuser', 'is_active', 'main_test_count'),
         }),
     )
     search_fields = ('email',)
     ordering = ('email',)
-    filter_horizontal = ("groups", "user_permissions")
+    filter_horizontal = ("groups",)
 
 
 
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)
 
-
+admin.site.register(Company)
 admin.site.register(Permission)

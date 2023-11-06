@@ -19,6 +19,18 @@ class Question(models.Model):
     image = models.FileField(upload_to='images', blank=True, null=True)
     correct_answer_description = models.TextField(blank=True, null=True)
 
+
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.user.is_admin:
+            print("HELLO")
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if obj and obj.user.is_admin:
+            return True
+        return False
+
     def __str__(self):
         return self.question
 
