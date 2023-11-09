@@ -32,3 +32,9 @@ class CreateUserAdminSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
+class GetAllUserAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "email", "password",
+                   "father_name", "final_test","start_date", "end_date",
+                   "organization", "access"]

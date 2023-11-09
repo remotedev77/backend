@@ -4,8 +4,8 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema 
 from admin_app.permissions import IsSuperUser
 from my_app.models import User
-from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateUserAdminSerializer
-
+from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateUserAdminSerializer, GetAllUserAdminSerializer
+from admin_app.pagination import UserPagination
 class ChangeUserAPIView(APIView):
     permission_classes = [IsSuperUser]
     def get(self, request, user_id):
@@ -47,3 +47,12 @@ class CreateUserAdminAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class GetAllUserAPIView(APIView, UserPagination):
+    permission_classes = [IsSuperUser]
+    @swagger_auto_schema(responses={200: GetAllUserAdminSerializer})
+    def get(self, request):
+        users = User.objects.all()
+        results = self.paginate_queryset(users, request, view=self)
+        serializer = GetAllUserAdminSerializer(results, many=True)
+        return self.get_paginated_response(serializer.data)

@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from my_app.models import Question
-
+from admin_app.serializers.answers_serializers import GetAllAnswerAdminSerializer
 
 class GetAllQuestionAdminSerializer(serializers.ModelSerializer):
+    answers = GetAllAnswerAdminSerializer(many=True)
     class Meta:
         model = Question
-        fields = ('id','question')
+        fields = "__all__"
 
 
 class ChangeQuestionAdminSerializer(serializers.ModelSerializer):

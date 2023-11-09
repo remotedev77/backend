@@ -16,9 +16,11 @@ class Exam(models.Model):
 
 class Question(models.Model):
     question = models.CharField(max_length=1000)
+    question_code = models.IntegerField(blank=True, null=True)
     image = models.FileField(upload_to='images', blank=True, null=True)
     correct_answer_description = models.TextField(blank=True, null=True)
-
+    work_function = models.TextField(max_length=300, blank=True, null=True)
+    note = models.TextField(max_length=300, blank=True, null=True)
 
     def has_change_permission(self, request, obj=None):
         if obj and obj.user.is_admin:

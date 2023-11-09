@@ -2,7 +2,9 @@ import csv, pandas as pd
 import io
 from my_app.models import Question, Answer
 from admin_app.pagination import QuestionPagination
-from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, CreateQuestionAdminSerializer
+from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, \
+    CreateQuestionAdminSerializer
+
 from admin_app.permissions import IsSuperUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,7 +16,7 @@ from drf_yasg.utils import swagger_auto_schema
 class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
     permission_classes = [IsSuperUser] 
     def get(self, request):
-        questions = Question.objects.all()
+        questions = Question.objects.prefetch_related('answers').all()
         results = self.paginate_queryset(questions, request, view=self)
         question_serializer = GetAllQuestionAdminSerializer(results, many=True)
         return self.get_paginated_response(question_serializer.data)
