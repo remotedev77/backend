@@ -48,6 +48,7 @@ def check_by_category(request_list: list, question_data: OrderedDict, user):
                             question_id=request_list[req]['q_id'],
                             correct=False, user=user)
                     data['description'] = question_data[res]['correct_answer_description']
+                    data['is_correct'] = None
                     incorrect_answers_count+=1
                 response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count

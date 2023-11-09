@@ -73,19 +73,34 @@ class CreateQusetionFromCSVAPIView(APIView):
         file_obj = request.data['filename']
         
         df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
-        df[['Вопрос','Ответ','Код вопроса', 'Правильный']]
+        # df[['Вопрос','Ответ','Код вопроса', 'Правильный']]
         df_data_question = df['Вопрос']
         df_data_answer = df['Ответ']
         df_data_iscorrect = df['Правильный']
+        df_function_data = df['Трудовая функция']
+        df_question_code = df['Код вопроса']
+        question_type_count=0
         a=0
+        print(df.columns)
         for i in range(len(df_data_answer)):
             a+=1
             print(a)
             questions = Question.objects.filter(question=df_data_question[i])
             if not questions.exists():
-                question = Question.objects.create(question=df_data_question[i])
+                question_type_count=0
+                question = Question.objects.create(question=df_data_question[i],
+                                                   question_code=df_question_code[i],
+                                                   work_function = df_function_data[i])
                 answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                if bool(int(df_data_iscorrect[i])):
+                    question_type_count+=1
+
             else:
+                if bool(int(df_data_iscorrect[i])):
+                    question_type_count+=1
                 answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                if question_type_count>1:
+                    question.note="multiple"
+                    question.save()
 
         return Response(status=status.HTTP_200_OK)
