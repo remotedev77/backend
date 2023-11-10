@@ -124,24 +124,24 @@ REST_FRAMEWORK = {
 
 
 
-DATABASES = {
-    "default": {
-        'ENGINE': "django.db.backends.mysql",
-        'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
-        'HOST': config["HOST"],
-        'PORT': config["PORT"],
-        'USER': config["USER"],
-        'PASSWORD': config["PASSWORD"],
-        'NAME': config["NAME"],
-    }
-}
-#Update for database for deploy
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#     "default": {
+#         'ENGINE': "django.db.backends.mysql",
+#         'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
+#         'HOST': config["HOST"],
+#         'PORT': config["PORT"],
+#         'USER': config["USER"],
+#         'PASSWORD': config["PASSWORD"],
+#         'NAME': config["NAME"],
 #     }
 # }
+#Update for database for deploy
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
@@ -260,3 +260,6 @@ JAZZMIN_SETTINGS = {
     "default_icon_children": "fas fa-circle",
 
 }
+AUTOCOMMIT = False
+# CELERY_BROKER_URL = "redis://0.0.0.0:6379/0"
+# CELERY_RESULT_BACKEND = "redis://0.0.0.0:6379/0"

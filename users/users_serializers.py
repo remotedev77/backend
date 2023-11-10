@@ -42,6 +42,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
     
 class UserGetSerializer(serializers.ModelSerializer):
+    organization = serializers.CharField(source='get_organization_name')
     class Meta:
         model = User
         fields = ["email", "first_name", "last_name","organization",

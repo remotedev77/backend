@@ -39,6 +39,8 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
     
+    def get_organization_name(self):
+        return self.organization.company_name
 
 class AdminTable(User):
     objects = AdminManager()

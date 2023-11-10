@@ -9,7 +9,7 @@ from admin_app.permissions import IsSuperUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser, MultiPartParser
+from rest_framework.parsers import MultiPartParser
 from drf_yasg.utils import swagger_auto_schema 
 
 
@@ -68,23 +68,20 @@ class CreateQuestionAdminAPIView(APIView):
 
 class CreateQusetionFromCSVAPIView(APIView):
     parser_classes = (MultiPartParser,)
-
+    permission_classes = [IsSuperUser]
     def post(self, request, format=None):
         file_obj = request.data['filename']
         
         df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
-        # df[['Вопрос','Ответ','Код вопроса', 'Правильный']]
         df_data_question = df['Вопрос']
         df_data_answer = df['Ответ']
         df_data_iscorrect = df['Правильный']
         df_function_data = df['Трудовая функция']
         df_question_code = df['Код вопроса']
         question_type_count=0
-        a=0
-        print(df.columns)
+
         for i in range(len(df_data_answer)):
-            a+=1
-            print(a)
+
             questions = Question.objects.filter(question=df_data_question[i])
             if not questions.exists():
                 question_type_count=0

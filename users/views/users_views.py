@@ -19,6 +19,7 @@ class GetUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        user_serializer_data = UserGetSerializer(request.user)
-        print(user_serializer_data.data)
+        user = request.user
+
+        user_serializer_data = UserGetSerializer(user)
         return Response(user_serializer_data.data)

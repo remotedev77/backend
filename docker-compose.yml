@@ -1,0 +1,29 @@
+services:
+
+  redis:
+    image: redis:7.2
+
+  exam-app-backend:
+    image: cr.yandex/crpv90a4bkpml30uc48e/backend:v0.1.1
+    command: >
+      bash -c "gunicorn -b 0.0.0.0:8000 myproject.wsgi:application"
+    volumes:
+      - .:/app/backend
+    ports:
+      - 8000:8000
+
+    depends_on:
+      - redis
+
+  celery:
+    build: .
+    command: celery -A core worker -l INFO
+    depends_on:
+      - exam-app-backend
+      - redis
+
+    volumes:
+      - .:/app/backend
+
+
+
