@@ -3,6 +3,7 @@ from typing import Dict
 
 from my_app.services import UpdateOrCreateStatistic
 from my_app.models import Statistic
+from my_app.utils import create_answers_structure
 
 
 def check_final_test(request_list: list, question_data: OrderedDict, user):

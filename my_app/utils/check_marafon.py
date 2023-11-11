@@ -1,9 +1,10 @@
 from collections import OrderedDict
+from pprint import pprint
 from typing import Dict
 
 from my_app.services import UpdateOrCreateStatistic
 from my_app.models import Statistic
-
+from my_app.utils.create_answers_structure import structured_answers_response
 
 def check_marafon(request_list: list, question_data: OrderedDict, user):
     response_data = []
@@ -26,7 +27,8 @@ def check_marafon(request_list: list, question_data: OrderedDict, user):
                     'description': '',
                     'answers':[]
                 }
-                data['answers'] = [ans for ans in question_data[res]['answers'].values()]
+                answer_strfucture_list = structured_answers_response(answers=question_data[res]['answers'])
+                data['answers'] = answer_strfucture_list
                 data['description'] = question_data[res]['correct_answer_description']
                 data["question"] = question_data[res]['question']
                 if len(answer_id_list) > 0:
