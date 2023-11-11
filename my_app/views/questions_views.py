@@ -54,7 +54,7 @@ class CheckMarafonQuestion(APIView):
         if request_list == []:
             return Response(status=status.HTTP_204_NO_CONTENT)
         response_data = check_marafon(request_list=request_list, question_data=question_data, user=user)
-
+        # return Response(question_data, status=status.HTTP_200_OK)
         return Response(response_data, status=status.HTTP_200_OK)
 
 

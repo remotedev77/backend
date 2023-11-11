@@ -29,15 +29,17 @@ def check_exam(request_list: list, question_data: OrderedDict, user):
                 data['description'] = question_data[res]['correct_answer_description']
                 data["question"] = question_data[res]['question']
                 if len(answer_id_list) > 0:
-                    is_correct_lists = [question_data[res]['answers'][answer_id]['is_correct'] for answer_id in answer_id_list]
-                    if False in is_correct_lists:
+                    req_answer_id_list = sorted(answer_id_list)
+                    correct_ids = sorted([id for id, answer in question_data[res]["answers"].items() if answer["is_correct"]])
+                    if req_answer_id_list != correct_ids:
                         UpdateOrCreateStatistic.create_or_update(django_model=Statistic, 
                             question_id=request_list[req]['q_id'],
                             correct=False, user=user)
                         data['is_correct'] = False
-
+                        data['description'] = question_data[res]['correct_answer_description']
                         incorrect_answers_count+=1
                     else:
+
                         UpdateOrCreateStatistic.create_or_update(django_model=Statistic, 
                             question_id=request_list[req]['q_id'],
                             correct=True, user=user)
