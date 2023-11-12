@@ -77,5 +77,5 @@ class UserAdminGetSerializer(serializers.ModelSerializer):
 class CreateManagerOrSuperUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'password', 'is_staff', 'is_superuser']
+        fields = ["id",'email', 'password', 'is_staff', 'is_superuser']
 

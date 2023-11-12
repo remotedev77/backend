@@ -3,8 +3,10 @@ import pandas as pd
 from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema 
 
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -124,3 +126,27 @@ class CreateManagerOrSuperUserAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ManagerListCreateView(generics.ListCreateAPIView):
+    queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+    serializer_class = CreateManagerOrSuperUserSerializer
+    permission_classes = [IsAdminOrSuperUser]
+
+class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = CreateManagerOrSuperUserSerializer
+    permission_classes = [IsAdminOrSuperUser]
+
+    def update(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        # Check if the password is provided in the request data
+        if 'password' in serializer.validated_data:
+            instance.set_password(serializer.validated_data['password'])
+            serializer.validated_data.pop('password')
+
+        self.perform_update(serializer)
+        return Response(serializer.data)
