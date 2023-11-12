@@ -1,7 +1,7 @@
 from my_app.models import Answer, Answer
 from admin_app.pagination import AnswerPagination
 from admin_app.serializers.answers_serializers import *
-from admin_app.permissions import IsSuperUser
+from admin_app.permissions import IsAdminOrSuperUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,7 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 class GetAllAnswerAdminAPIView(APIView, AnswerPagination):
-    permission_classes = [IsSuperUser] 
+    permission_classes = [IsAdminOrSuperUser] 
     def get(self, request):
         Answers = Answer.objects.all()
         results = self.paginate_queryset(Answers, request, view=self)
@@ -19,7 +19,7 @@ class GetAllAnswerAdminAPIView(APIView, AnswerPagination):
 
 
 class ChangeAnswerAdminAPIView(APIView):
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
 
     def get(self, request, answer_id):
         try:
@@ -51,7 +51,7 @@ class ChangeAnswerAdminAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 class CreateAnswerAdminAPIView(APIView):
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
     @swagger_auto_schema(responses={200: CreateAnswerAdminSerializer}, request_body=CreateAnswerAdminSerializer)
     def post(self, request):
         serializer = CreateAnswerAdminSerializer(data=request.data)

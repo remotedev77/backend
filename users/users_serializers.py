@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import User
+from users.models import Company, User
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,13 +40,29 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
-    
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ["company_name"]
+
+
 class UserGetSerializer(serializers.ModelSerializer):
-    organization = serializers.CharField(source='get_organization_name')
+    organization = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name","organization",
-                   "father_name", "main_test_count", "final_test"]
+        exclude = ["id","is_admin", "is_active", "is_staff",
+                   "is_superuser", "password", "last_login",
+                   "groups", "user_permissions"]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return representation
+    
+    def get_organization(self, obj):
+        if obj.organization is not None:
+            return obj.organization.company_name
+        return ""
 
     

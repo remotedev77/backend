@@ -13,8 +13,10 @@ urlpatterns = [
     path('create-answer/', answers_views.CreateAnswerAdminAPIView.as_view()),
 
     path('change-user/<int:user_id>/', user_views.ChangeUserAPIView.as_view()),
+    path('delete-user/<int:user_id>/', user_views.ChangeUserAPIView.as_view()),
     path('create-user/', user_views.CreateUserAdminAPIView.as_view()),
     path('get-users/', user_views.GetAllUserAPIView.as_view()),
     path('upload-csv-user-file/', user_views.CreateUserFromCSVAPIView.as_view()),
-   
+    path('get-user/', user_views.GetAdminUserAPIView.as_view()),
+    path('create-manager-user/', user_views.CreateManagerOrSuperUserAPIView.as_view())
 ]

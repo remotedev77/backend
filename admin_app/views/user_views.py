@@ -9,26 +9,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
-from admin_app.permissions import IsSuperUser
-from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateUserAdminSerializer, GetAllUserAdminSerializer
+from admin_app.permissions import IsAdminOrSuperUser, IsSuperUser
+from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateManagerOrSuperUserSerializer, CreateUserAdminSerializer, \
+    GetAllUserAdminSerializer, UserAdminGetSerializer
 from admin_app.pagination import UserPagination
 from users.models import Company
 
 User = get_user_model()
 
 class ChangeUserAPIView(APIView):
-    permission_classes = [IsSuperUser]
-    def get(self, request, user_id):
-        try:
-            instance = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = ChangeUserAdminSerializer(instance)
+    permission_classes = [IsAdminOrSuperUser]
+
+    def get(self, request):
+
+        serializer = ChangeUserAdminSerializer(request.user)
         return Response(serializer.data)
+    
     @swagger_auto_schema(responses={200: ChangeUserAdminSerializer}, request_body=ChangeUserAdminSerializer)
     def put(self, request, user_id):
         try:
-            instance = User.objects.get(id=user_id)
+            instance = User.objects.get(id=request.user.id)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
@@ -40,7 +40,7 @@ class ChangeUserAPIView(APIView):
     
     def delete(self, request, user_id):
         try:
-            instance = User.objects.get(id=user_id)
+            instance = User.objects.get(id=request.user.id)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -49,7 +49,7 @@ class ChangeUserAPIView(APIView):
     
 
 class CreateUserAdminAPIView(APIView):
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
     @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
     def post(self, request):
         serializer = CreateUserAdminSerializer(data=request.data)
@@ -60,7 +60,7 @@ class CreateUserAdminAPIView(APIView):
 
 
 class GetAllUserAPIView(APIView, UserPagination):
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
     @swagger_auto_schema(responses={200: GetAllUserAdminSerializer})
     def get(self, request):
         users = User.objects.all()
@@ -104,3 +104,23 @@ class CreateUserFromCSVAPIView(APIView):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
+    
+class GetAdminUserAPIView(APIView):
+    permission_classes = [IsAdminOrSuperUser]
+
+    def get(self, request):
+        user = request.user
+
+        user_serializer_data = UserAdminGetSerializer(user)
+        return Response(user_serializer_data.data)
+    
+
+class CreateManagerOrSuperUserAPIView(APIView):
+    permission_classes = [IsSuperUser]
+    @swagger_auto_schema(responses={201:CreateManagerOrSuperUserSerializer}, request_body=CreateManagerOrSuperUserSerializer)
+    def post(self, request):
+        serializer = CreateManagerOrSuperUserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

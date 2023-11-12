@@ -16,15 +16,15 @@ class User(AbstractUser):
         открыт = 'открыт'
         закрыт = 'закрыт'
     username = None
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(max_length=100, unique=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    father_name = models.CharField(max_length=50)
+    father_name = models.CharField(max_length=50, blank=True, null=True)
     organization = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
@@ -39,8 +39,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
     
-    def get_organization_name(self):
-        return self.organization.company_name
 
 class AdminTable(User):
     objects = AdminManager()

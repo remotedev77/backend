@@ -5,7 +5,7 @@ from admin_app.pagination import QuestionPagination
 from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, \
     CreateQuestionAdminSerializer
 
-from admin_app.permissions import IsSuperUser
+from admin_app.permissions import IsAdminOrSuperUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +14,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
-    permission_classes = [IsSuperUser] 
+    permission_classes = [IsAdminOrSuperUser] 
     def get(self, request):
         questions = Question.objects.prefetch_related('answers').all()
         results = self.paginate_queryset(questions, request, view=self)
@@ -24,7 +24,7 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
 
 
 class ChangeQuestionAdminAPIView(APIView):
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
 
     def get(self, request, question_id):
         try:
@@ -56,7 +56,7 @@ class ChangeQuestionAdminAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 class CreateQuestionAdminAPIView(APIView):
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
     @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
     def post(self, request):
         serializer = CreateQuestionAdminSerializer(data=request.data)
@@ -68,7 +68,7 @@ class CreateQuestionAdminAPIView(APIView):
 
 class CreateQusetionFromCSVAPIView(APIView):
     parser_classes = (MultiPartParser,)
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdminOrSuperUser]
     def post(self, request, format=None):
         file_obj = request.data['filename']
         

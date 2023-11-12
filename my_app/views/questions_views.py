@@ -73,7 +73,7 @@ class CheckFinalTestAPIView(APIView):
 
 
 class CheckCategoryQuestionAPIView(APIView): #change this api
-    permission_classes = [IsAuthenticated, CheckFinalTestPermission]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         request_list = request.data
         user = request.user
