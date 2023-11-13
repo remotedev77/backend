@@ -76,16 +76,18 @@ class GetAllUserAPIView(APIView, UserPagination):
 
 class CreateUserFromCSVAPIView(APIView):
     parser_classes = (MultiPartParser,)
+    permission_classes = [IsAdminOrSuperUser]
 
     def post(self, request, format=None):
-        organization = request.data.get('organization')
+        organization_id = request.data.get('organization_id')
         try:
-            Company.objects.get(company_name=organization)
+            organization = Company.objects.get(id=organization_id)
         except:
-            return Response("Organization not find", status=status.HTTP_404_NOT_FOUND)
+            return Response("Organization not found", status=status.HTTP_404_NOT_FOUND)
         
         file_obj = request.data['filename']
-        df = pd.read_csv(file_obj, on_bad_lines='skip', sep=",")
+        df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
+
         try:
             with transaction.atomic():
                 for i in range(len(df)):
@@ -104,7 +106,8 @@ class CreateUserFromCSVAPIView(APIView):
                         password = df['Пароль'][i],
                         father_name = df['Отчество'][i],
                         start_date = start_formatted_date_str,
-                        end_date = end_formatted_date_str
+                        end_date = end_formatted_date_str,
+                        organization = organization
                     )
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
