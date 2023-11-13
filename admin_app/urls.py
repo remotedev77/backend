@@ -21,6 +21,8 @@ urlpatterns = [
     path('get-users/', user_views.GetAllUserAPIView.as_view()),
     path('upload-csv-user-file/', user_views.CreateUserFromCSVAPIView.as_view()),
     path('get-user/', user_views.GetAdminUserAPIView.as_view()),
+    path('get-user/<int:user_id>/', user_views.GetUserForAdminAPIView.as_view()),
+    path('get-user-statistic/<int:user_id>/', user_views.GetUserStatistic.as_view()),
     path('managers', user_views.ManagerListCreateView.as_view()),
     path('managers/<int:pk>/',user_views.ManagerRetrieveUpdateDestroyView.as_view())
 ]

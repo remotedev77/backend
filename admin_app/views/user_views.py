@@ -3,7 +3,8 @@ import pandas as pd
 from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count, Value
+from django.db.models.functions import Round
 from drf_yasg.utils import swagger_auto_schema 
 
 from rest_framework import generics
@@ -13,8 +14,10 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from admin_app.permissions import IsAdminOrSuperUser, IsSuperUser
 from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateManagerOrSuperUserSerializer, CreateUserAdminSerializer, \
-    GetAllUserAdminSerializer, UserAdminGetSerializer
+    GetAllUserAdminSerializer, GetUserForAdminSerializer, UserAdminGetSerializer
 from admin_app.pagination import UserPagination
+
+from my_app.models import Statistic, Question
 from users.models import Company
 
 User = get_user_model()
@@ -30,11 +33,11 @@ class ChangeUserAPIView(APIView):
     @swagger_auto_schema(responses={200: ChangeUserAdminSerializer}, request_body=ChangeUserAdminSerializer)
     def put(self, request, user_id):
         try:
-            instance = User.objects.get(id=request.user.id)
+            instance = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-        serializer = ChangeUserAdminSerializer(instance=instance, data=request.data)
+        serializer = ChangeUserAdminSerializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -42,7 +45,7 @@ class ChangeUserAPIView(APIView):
     
     def delete(self, request, user_id):
         try:
-            instance = User.objects.get(id=request.user.id)
+            instance = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -150,3 +153,47 @@ class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
         self.perform_update(serializer)
         return Response(serializer.data)
+
+
+class GetUserForAdminAPIView(APIView):
+    permission_classes = [IsAdminOrSuperUser]
+
+    def get(self, request, user_id):
+        try:
+            instance = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = GetUserForAdminSerializer(instance)
+        return Response(serializer.data)
+    
+class GetUserStatistic(APIView):
+    permission_classes = [IsAdminOrSuperUser]
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        data_statistic = {
+            'category': 'Не решал',
+            'statistic': None
+        }
+        data_count = {
+            'category': 'Не решал',
+            'category_count': None
+        }
+        questions_count = Question.objects.aggregate(questions_count=Count('id')) # Add this data to cache
+        statistic = Statistic.objects.select_related('user_id').filter(user_id = user).values('category').annotate(
+                statistic=Round(Count('category')/Value(float(questions_count['questions_count']))*100,2)
+        )
+        statistic_question_count = Statistic.objects.select_related('user_id').filter(user_id = user).aggregate(question_count=Count('id'))
+        statistic_no_show = round((questions_count['questions_count']-statistic_question_count['question_count'])/questions_count['questions_count']*100,2)
+        data_statistic['statistic'] = statistic_no_show
+        statistic=list(statistic)
+        statistic.append(data_statistic)
+        category_counts = Statistic.objects.select_related('user_id').filter(user_id = user).values('category').annotate(category_count=Count('category'))
+        category_no_show_count = questions_count['questions_count']-statistic_question_count['question_count']
+        
+        data_count['category_count'] = category_no_show_count
+        category_counts = list(category_counts)
+        category_counts.append(data_count)
+        return Response({"statistic":statistic, "category_counts": category_counts})

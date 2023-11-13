@@ -5,12 +5,13 @@ from django.contrib.auth.hashers import make_password
 User = get_user_model()
 
 class ChangeUserAdminSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(required=False)
     class Meta:
         model = User
         exclude = ['date_joined', 'last_login','groups', 'user_permissions', 
                    'is_admin', 'is_active']
     def update(self, instance, validated_data):
+        
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         
@@ -79,3 +80,14 @@ class CreateManagerOrSuperUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id",'email', 'password', 'is_staff', 'is_superuser']
 
+
+class GetUserForAdminSerializer(serializers.ModelSerializer):
+    organization = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = "__all__"
+
+    def get_organization(self, obj):
+        if obj.organization is not None:
+            return obj.organization.company_name
+        return ""
