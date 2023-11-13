@@ -16,7 +16,7 @@ urlpatterns = [
     path('companies/<int:pk>/', company_views.CompanyRetrieveUpdateDestroyView.as_view(), name='company-retrieve-update-destroy'),
 
     path('change-user/<int:user_id>/', user_views.ChangeUserAPIView.as_view()),
-    path('delete-user/<int:user_id>/', user_views.ChangeUserAPIView.as_view()),
+    # path('delete-user/<int:user_id>/', user_views.ChangeUserAPIView.as_view()),
     path('create-user/', user_views.CreateUserAdminAPIView.as_view()),
     path('get-users/', user_views.GetAllUserAPIView.as_view()),
     path('upload-csv-user-file/', user_views.CreateUserFromCSVAPIView.as_view()),

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from drf_yasg.utils import swagger_auto_schema 
-
+from django.db import transaction
 
 class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
     permission_classes = [IsAdminOrSuperUser] 
@@ -107,10 +107,16 @@ class CreateQusetionFromCSVAPIView(APIView):
 
 class CreateQuestionAndAnswer(APIView):
     permission_classes = [IsAdminOrSuperUser]
+
+    @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
     def post(self, request):
         question_data = request.data
         serializer = CreateQuestionAndAnswersAdminSerializer(data = question_data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            try:
+                with transaction.atomic():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -26,3 +26,8 @@ class CreateAnswerAdminSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Answer.objects.create(**validated_data)
+    
+
+class CreateAnswer(serializers.Serializer):
+    answer = serializers.CharField()
+    is_correct = serializers.BooleanField()
