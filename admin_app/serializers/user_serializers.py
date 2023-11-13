@@ -101,3 +101,7 @@ class GetUserForAdminSerializer(serializers.ModelSerializer):
         if obj.organization is not None:
             return obj.organization.company_name
         return ""
+    
+class CsvUserUploadSerializer(serializers.Serializer):
+    filename = serializers.FileField()
+    organization_id = serializers.IntegerField()

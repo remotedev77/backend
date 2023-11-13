@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from admin_app.permissions import IsAdminOrSuperUser, IsSuperUser
 from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateManagerOrSuperUserSerializer, CreateUserAdminSerializer, \
-    GetAllUserAdminSerializer, GetUserForAdminSerializer, UserAdminGetSerializer
+    GetAllUserAdminSerializer, GetUserForAdminSerializer, UserAdminGetSerializer, CsvUserUploadSerializer
 from admin_app.pagination import UserPagination
 
 from my_app.models import Statistic, Question
@@ -77,7 +77,7 @@ class GetAllUserAPIView(APIView, UserPagination):
 class CreateUserFromCSVAPIView(APIView):
     parser_classes = (MultiPartParser,)
     permission_classes = [IsAdminOrSuperUser]
-
+    @swagger_auto_schema(responses={}, request_body=CsvUserUploadSerializer)
     def post(self, request, format=None):
         organization_id = request.data.get('organization_id')
         try:
