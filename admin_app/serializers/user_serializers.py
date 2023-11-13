@@ -78,8 +78,18 @@ class UserAdminGetSerializer(serializers.ModelSerializer):
 class CreateManagerOrSuperUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id",'email', 'password', 'is_staff', 'is_superuser']
+        fields = ["id",'email', 'password', 'first_name', 'last_name', 'father_name', 'is_staff', 'is_superuser']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if representation['is_superuser']:
+            representation['role'] = 'admin'
+            return representation
+        
+        elif representation['is_staff']:
+            representation['role'] = 'manager'
+            return representation
+        return representation
 
 class GetUserForAdminSerializer(serializers.ModelSerializer):
     organization = serializers.SerializerMethodField()

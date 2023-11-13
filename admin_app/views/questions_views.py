@@ -3,7 +3,8 @@ import io
 from my_app.models import Question, Answer
 from admin_app.pagination import QuestionPagination
 from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, \
-    CreateQuestionAdminSerializer
+    CreateQuestionAdminSerializer, CreateQuestionAndAnswersAdminSerializer
+from admin_app.serializers.answers_serializers import CreateAnswerAdminSerializer
 
 from admin_app.permissions import IsAdminOrSuperUser
 from rest_framework.views import APIView
@@ -28,11 +29,12 @@ class ChangeQuestionAdminAPIView(APIView):
 
     def get(self, request, question_id):
         try:
-            instance = Question.objects.get(id=question_id)
+            instance = Question.objects.prefetch_related('answers').get(id=question_id)
         except Question.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ChangeQuestionAdminSerializer(instance)
         return Response(serializer.data)
+    
     @swagger_auto_schema(responses={200: ChangeQuestionAdminSerializer}, request_body=ChangeQuestionAdminSerializer)
     def put(self, request, question_id):
         try:
@@ -40,7 +42,7 @@ class ChangeQuestionAdminAPIView(APIView):
         except Question.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-        serializer = ChangeQuestionAdminSerializer(instance=instance, data=request.data)
+        serializer = ChangeQuestionAdminSerializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -101,3 +103,14 @@ class CreateQusetionFromCSVAPIView(APIView):
                     question.save()
 
         return Response(status=status.HTTP_200_OK)
+    
+
+class CreateQuestionAndAnswer(APIView):
+    permission_classes = [IsAdminOrSuperUser]
+    def post(self, request):
+        question_data = request.data
+        serializer = CreateQuestionAndAnswersAdminSerializer(data = question_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

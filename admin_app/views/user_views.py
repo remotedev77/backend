@@ -131,7 +131,7 @@ class CreateManagerOrSuperUserAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class ManagerListCreateView(generics.ListCreateAPIView):
+class ManagerListCreateView(generics.ListAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     serializer_class = CreateManagerOrSuperUserSerializer
     permission_classes = [IsAdminOrSuperUser]
