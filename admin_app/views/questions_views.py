@@ -72,37 +72,40 @@ class CreateQusetionFromCSVAPIView(APIView):
     parser_classes = (MultiPartParser,)
     permission_classes = [IsAdminOrSuperUser]
     def post(self, request, format=None):
-        file_obj = request.data['filename']
         
-        df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
-        print(df)
-        df_data_question = df['Вопрос']
-        df_data_answer = df['Ответ']
-        df_data_iscorrect = df['Правильный']
-        df_function_data = df['Трудовая функция']
-        df_question_code = df['Код вопроса']
-        question_type_count=0
+        try:
+            file_obj = request.data['filename']
+            df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
+            df_data_question = df['Вопрос']
+            df_data_answer = df['Ответ']
+            df_data_iscorrect = df['Правильный']
+            df_function_data = df['Трудовая функция']
+            df_question_code = df['Код вопроса']
+            question_type_count=0
+        except:
+            return Response("Csv file problem", status=status.HTTP_400_BAD_REQUEST)
 
-        for i in range(len(df_data_answer)):
-
-            questions = Question.objects.filter(question=df_data_question[i])
-            if not questions.exists():
-                question_type_count=0
-                question = Question.objects.create(question=df_data_question[i],
-                                                   question_code=df_question_code[i],
-                                                   work_function = df_function_data[i])
-                answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
-                if bool(int(df_data_iscorrect[i])):
-                    question_type_count+=1
-
-            else:
-                if bool(int(df_data_iscorrect[i])):
-                    question_type_count+=1
-                question=questions.get()
-                answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
-                if question_type_count>1:
-                    question.note="multiple"
-                    question.save()
+        with transaction.atomic():
+            for i in range(len(df_data_answer)):
+            
+                questions = Question.objects.filter(question_code=df_question_code[i])
+                if not questions.exists():
+                    question_type_count=0
+                    question = Question.objects.create(question=df_data_question[i],
+                                                       question_code=df_question_code[i],
+                                                       work_function = df_function_data[i])
+                    answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                    if bool(int(df_data_iscorrect[i])):
+                        question_type_count+=1
+    
+                else:
+                    if bool(int(df_data_iscorrect[i])):
+                        question_type_count+=1
+                    question=questions.get()
+                    answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                    if question_type_count>1:
+                        question.note="multiple"
+                        question.save()
 
         return Response(status=status.HTTP_200_OK)
     
