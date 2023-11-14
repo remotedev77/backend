@@ -75,6 +75,7 @@ class CreateQusetionFromCSVAPIView(APIView):
         file_obj = request.data['filename']
         
         df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
+        print(df)
         df_data_question = df['Вопрос']
         df_data_answer = df['Ответ']
         df_data_iscorrect = df['Правильный']
@@ -97,6 +98,7 @@ class CreateQusetionFromCSVAPIView(APIView):
             else:
                 if bool(int(df_data_iscorrect[i])):
                     question_type_count+=1
+                question=questions.get()
                 answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
                 if question_type_count>1:
                     question.note="multiple"
