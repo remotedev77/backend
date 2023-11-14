@@ -84,11 +84,11 @@ class CreateUserFromCSVAPIView(APIView):
             organization = Company.objects.get(id=organization_id)
         except:
             return Response("Organization not found", status=status.HTTP_404_NOT_FOUND)
-        
-        file_obj = request.data['filename']
-        df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
-
         try:
+            file_obj = request.data['filename']
+            df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
+
+        
             with transaction.atomic():
                 for i in range(len(df)):
                     start_input_date_str = df['Дата начала обучения'][i]
@@ -137,12 +137,12 @@ class CreateManagerOrSuperUserAPIView(APIView):
 class ManagerListCreateView(generics.ListAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     serializer_class = CreateManagerOrSuperUserSerializer
-    permission_classes = [IsAdminOrSuperUser]
+    permission_classes = [IsSuperUser]
 
 class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = CreateManagerOrSuperUserSerializer
-    permission_classes = [IsAdminOrSuperUser]
+    permission_classes = [IsSuperUser]
 
     def update(self, request, *args, **kwargs):
         partial = True
