@@ -45,13 +45,15 @@ class CreateUserAdminSerializer(serializers.ModelSerializer):
 
 
 class GetAllUserAdminSerializer(serializers.ModelSerializer):
+    organization = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "password",
-                   "father_name", "final_test","start_date", "end_date",
-                   "organization", "access"]
+        exclude = ["groups", "user_permissions"]
 
-
+    def get_organization(self, obj):
+        if obj.organization is not None:
+            return obj.organization.company_name
+        return ""
 class UserAdminGetSerializer(serializers.ModelSerializer):
     organization = serializers.SerializerMethodField()
     class Meta:

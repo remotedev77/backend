@@ -68,7 +68,7 @@ class GetAllUserAPIView(APIView, UserPagination):
     permission_classes = [IsAdminOrSuperUser]
     @swagger_auto_schema(responses={200: GetAllUserAdminSerializer})
     def get(self, request):
-        users = User.objects.all()
+        users = User.objects.exclude(Q(is_staff=True) | Q(is_superuser=True))
         results = self.paginate_queryset(users, request, view=self)
         serializer = GetAllUserAdminSerializer(results, many=True)
         return self.get_paginated_response(serializer.data)
@@ -86,20 +86,16 @@ class CreateUserFromCSVAPIView(APIView):
             return Response("Organization not found", status=status.HTTP_404_NOT_FOUND)
         try:
             file_obj = request.data['filename']
-            df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
-
-        
+            df = pd.read_excel(file_obj, sheet_name="ПОЛЬЗОВАТЕЛИ")
+        except:
+            return Response("Something is wrong with excel file structure. For example check file name or sheet name for users or smt",
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
             with transaction.atomic():
                 for i in range(len(df)):
-                    start_input_date_str = df['Дата начала обучения'][i]
-                    start_input_date = datetime.strptime(start_input_date_str, "%d.%m.%Y")
-                    end_input_date_str = df['Дата конца обучения'][i]
-                    end_input_date = datetime.strptime(end_input_date_str, "%d.%m.%Y")
-
-                    # Convert it to the "YYYY-MM-DD" format
-                    start_formatted_date_str = start_input_date.strftime("%Y-%m-%d")
-                    end_formatted_date_str = end_input_date.strftime("%Y-%m-%d")
-                    User.objects.create(
+                    start_formatted_date_str = df['Дата начала обучения'][i].date()
+                    end_formatted_date_str = df['Дата конца обучения'][i].date()
+                    User.objects.create_user(
                         first_name = df['Имя'][i],
                         last_name = df['Фамилия'][i],
                         email = df['Еmail / Логин'][i],
@@ -110,7 +106,7 @@ class CreateUserFromCSVAPIView(APIView):
                         organization = organization
                     )
         except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response("Data type in excel file doesn't match",status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
     
 class GetAdminUserAPIView(APIView):
@@ -134,7 +130,7 @@ class CreateManagerOrSuperUserAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class ManagerListCreateView(generics.ListAPIView):
+class ManagerListView(generics.ListAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     serializer_class = CreateManagerOrSuperUserSerializer
     permission_classes = [IsSuperUser]
@@ -169,6 +165,7 @@ class GetUserForAdminAPIView(APIView):
         serializer = GetUserForAdminSerializer(instance)
         return Response(serializer.data)
     
+
 class GetUserStatistic(APIView):
     permission_classes = [IsAdminOrSuperUser]
     def get(self, request, user_id):

@@ -75,7 +75,7 @@ class CreateQusetionFromCSVAPIView(APIView):
         
         try:
             file_obj = request.data['filename']
-            df = pd.read_csv(file_obj, on_bad_lines='skip', sep=";")
+            df = pd.read_excel(file_obj)
             df_data_question = df['Вопрос']
             df_data_answer = df['Ответ']
             df_data_iscorrect = df['Правильный']
