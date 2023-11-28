@@ -93,6 +93,7 @@ class CreateUserFromCSVAPIView(APIView):
         try:
             with transaction.atomic():
                 for i in range(len(df)):
+                    
                     start_formatted_date_str = df['Дата начала обучения'][i].date()
                     end_formatted_date_str = df['Дата конца обучения'][i].date()
                     User.objects.create_user(
@@ -105,8 +106,9 @@ class CreateUserFromCSVAPIView(APIView):
                         end_date = end_formatted_date_str,
                         organization = organization
                     )
-        except:
-            return Response("Data type in excel file doesn't match",status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(df['Дата начала обучения'])
+            return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
     
 class GetAdminUserAPIView(APIView):
