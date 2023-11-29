@@ -113,7 +113,7 @@ class CreateQusetionFromCSVAPIView(APIView):
 
 class CreateQuestionAndAnswer(APIView):
     permission_classes = [IsAdminOrSuperUser]
-
+    # parser_classes = (MultiPartParser,)
     @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
     def post(self, request):
         question_data = request.data

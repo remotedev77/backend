@@ -124,24 +124,38 @@ REST_FRAMEWORK = {
 
 
 
-DATABASES = {
-    "default": {
-        'ENGINE': "django.db.backends.mysql",
-        'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
-        'HOST': config["HOST"],
-        'PORT': config["PORT"],
-        'USER': config["USER"],
-        'PASSWORD': config["PASSWORD"],
-        'NAME': config["NAME"],
-    }
-}
-#Update for database for deploy
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#     "default": {
+#         'ENGINE': "django.db.backends.mysql",
+#         'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
+#         'HOST': config["HOST"],
+#         'PORT': config["PORT"],
+#         'USER': config["USER"],
+#         'PASSWORD': config["PASSWORD"],
+#         'NAME': config["NAME"],
 #     }
 # }
+#Update for database for deploy
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "JWT [Bearer {JWT}]": {
+            "name": "Authorization",
+            "type": "apiKey",
+            "in": "header",
+        }
+    },
+    "USE_SESSION_AUTH": False,
+}
+
+FORCE_SCRIPT_NAME = "/"
 
 
 # Password validation
