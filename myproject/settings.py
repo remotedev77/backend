@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'admin_app',
     'rest_framework',
     "corsheaders",
-    
+    'drf_spectacular',
     'rest_framework_simplejwt',
     # "debug_toolbar",
     'drf_yasg',
@@ -174,6 +174,27 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "JWT [Bearer {JWT}]": {
+            "name": "Bearer",
+            "type": "apiKey",
+            "in": "header",
+        }
+    },
+    "USE_SESSION_AUTH": False,
+}
+
+FORCE_SCRIPT_NAME = "/"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
