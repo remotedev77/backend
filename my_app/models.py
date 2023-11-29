@@ -37,6 +37,24 @@ class Question(models.Model):
         return self.question
 
 
+
+class ComplianceQuestion(models.Model):
+    question = models.CharField(max_length=1000)
+    question_code = models.IntegerField(blank=True, null=True)
+    parent_question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="child_questions")
+
+
+class ComplianceAnswer(models.Model):
+    answer = models.CharField(max_length=1000)
+    compliance_question_id = models.ForeignKey(
+        ComplianceQuestion, on_delete=models.CASCADE, related_name='answers')
+    is_correct = models.BooleanField()
+    question_id = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='compliance_answers')
+    def __str__(self):
+        return self.answer
+
+
 class Answer(models.Model):
     answer = models.CharField(max_length=1000)
     question_id = models.ForeignKey(

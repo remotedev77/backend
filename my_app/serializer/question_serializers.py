@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from my_app.models import Question, Statistic
+from my_app.models import Question, Statistic, ComplianceQuestion
 from my_app.serializer.answer_serializers import AnswerSerializer
 
 
@@ -9,6 +9,8 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = ('id','question','image', 'answers',
                   'question_code', 'work_function','note')
+
+
 
 class QuestionExamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,3 +65,6 @@ class GetQuestinByCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Statistic
         fields = ['question_id']
+
+
+

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from my_app.models import Answer, Question, Exam, Statistic
+from my_app.models import Answer, Question, Exam, Statistic, ComplianceQuestion, ComplianceAnswer
 
 # Register your models here.
 
@@ -26,7 +26,19 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ['question']
 
 
-@admin.register(Answer)
+class ComplianceAnswerTabularInline(admin.TabularInline):
+    model = ComplianceAnswer
+    fields = ('answer', 'is_correct', 'question_id')
+
+
+@admin.register(ComplianceQuestion)
+class ComplianceQuestionAdmin(admin.ModelAdmin):
+    inlines = [ComplianceAnswerTabularInline]
+    list_display = ['question', 'question_code','parent_question']
+    search_fields = ['question']
+
+
+@admin.register(Answer, ComplianceAnswer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ['answer']
     search_fields = ['answer']
