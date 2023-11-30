@@ -11,5 +11,6 @@ urlpatterns = [
     path('check-category-question/', questions_views.CheckCategoryQuestionAPIView.as_view()),
     path('get-category-question/<str:category_name>/', questions_views.GetQuestionByCategory.as_view()),
     path('complie-questions/', test_views.GetComplieQuestionAPIView.as_view()),
-    path('complie-test-questions/', test_views.GetComplieTestQuestionAPIView.as_view())
+    path('check-complie-questions/', test_views.CheckComplianceExamAPIView.as_view())
+    # path('complie-test-questions/', test_views.GetComplieTestQuestionAPIView.as_view())
 ]
