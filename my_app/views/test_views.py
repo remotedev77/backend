@@ -20,9 +20,8 @@ class GetComplieQuestionAPIView(APIView):
         # all_question_ids = Question.objects.values_list('id', flat=True) #save this data on chace for optimize
         # random_question_ids = random.sample(list(all_question_ids), 50)
         # random_questions = Question.objects.filter(id__in=random_question_ids)
-
         serializer = QuestionComplieSerializer(questions, many=True)
-
+        # return Response("serializer.data")
         return Response(serializer.data)
     
 

@@ -5,7 +5,7 @@ from my_app.serializer.answer_serializers import AnswerSerializer, ComplianceAns
 
 
 class ComplianceQuestionSerializer(serializers.ModelSerializer):
-    compliance_answers = ComplianceAnswerSerializer(many=True)
+    # answers = ComplianceAnswerSerializer(many=True)
     class Meta:
         model = ComplianceQuestion
         fields = "__all__"
@@ -22,6 +22,7 @@ class QuestionComplieSerializer(serializers.ModelSerializer):
     compliance_answers = ComplianceAnswerSerializer(many=True)
     child_questions = ComplianceQuestionSerializer(many=True)
     answers = AnswerSerializer(many=True)
+    
     class Meta:
         model = Question
         fields = "__all__"
