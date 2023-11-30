@@ -9,9 +9,9 @@ urlpatterns = [
     path('upload-csv-question-file/', questions_views.CreateQusetionFromCSVAPIView.as_view()),
     path('create-question-and-answer/', questions_views.CreateQuestionAndAnswer.as_view()),
     path('get-all-answers/', answers_views.GetAllAnswerAdminAPIView.as_view()),
-    path('chage-answer/', answers_views.ChangeAnswerAdminAPIView.as_view()),
+    path('chage-answer/<int:answer_id>/', answers_views.ChangeAnswerAdminAPIView.as_view()),
     path('create-answer/', answers_views.CreateAnswerAdminAPIView.as_view()),
-
+    path('delete-multi-answers/', answers_views.DeleteAnswerAdminAPIView.as_view()),
     path('companies/', company_views.CompanyListCreateView.as_view(), name='company-list-create'),
     path('companies/<int:pk>/', company_views.CompanyRetrieveUpdateDestroyView.as_view(), name='company-retrieve-update-destroy'),
 

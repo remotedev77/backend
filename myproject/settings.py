@@ -124,24 +124,24 @@ REST_FRAMEWORK = {
 
 
 
-# DATABASES = {
-#     "default": {
-#         'ENGINE': "django.db.backends.mysql",
-#         'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
-#         'HOST': config["HOST"],
-#         'PORT': config["PORT"],
-#         'USER': config["USER"],
-#         'PASSWORD': config["PASSWORD"],
-#         'NAME': config["NAME"],
-#     }
-# }
-#Update for database for deploy
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        'ENGINE': "django.db.backends.mysql",
+        'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
+        'HOST': config["HOST"],
+        'PORT': config["PORT"],
+        'USER': config["USER"],
+        'PASSWORD': config["PASSWORD"],
+        'NAME': config["NAME"],
     }
 }
+#Update for database for deploy
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 SWAGGER_SETTINGS = {
@@ -188,6 +188,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema 
+from drf_yasg import openapi
 from django.db import transaction
 
 class GetAllAnswerAdminAPIView(APIView, AnswerPagination):
@@ -48,6 +49,29 @@ class ChangeAnswerAdminAPIView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(response_data, status=status.HTTP_200_OK)
 
+
+
+    def delete(self, request, answer_id):
+        try:
+            instance = Answer.objects.get(id=answer_id)
+            instance.delete()
+        except:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class DeleteAnswerAdminAPIView(APIView):
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'id': openapi.Schema(type=openapi.TYPE_INTEGER)
+                }
+            )
+        )
+    )
     def delete(self, request):
         answers_data = request.data
         try:
@@ -60,25 +84,16 @@ class ChangeAnswerAdminAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-    
 class CreateAnswerAdminAPIView(APIView):
     permission_classes = [IsAdminOrSuperUser]
 
     @swagger_auto_schema(responses={200: CreateAnswerAdminSerializer}, request_body=CreateAnswerAdminSerializer)
     def post(self, request):
-        answers_data = request.data
-        response_data = []
-        try:
-            with transaction.atomic():
-                for data in answers_data:
-                    serializer = CreateAnswerAdminSerializer(data=data)
-                    if serializer.is_valid():
-                        serializer.save()
-                        response_data.append(serializer.data)
-                    else:
-                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(response_data, status=status.HTTP_200_OK)
+        serializer = CreateAnswerAdminSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 

@@ -31,3 +31,5 @@ class CreateAnswerAdminSerializer(serializers.ModelSerializer):
 class CreateAnswer(serializers.Serializer):
     answer = serializers.CharField()
     is_correct = serializers.BooleanField()
+
+
