@@ -31,11 +31,18 @@ def test_check_exam(request_list: list, question_data: OrderedDict, user):
                     incorrect_answers_count+= core_incorrect_answers_count
                     response_data.append(data)
                 else:
-
+                    compliance_answer_check = True
                     for aid in request_list[req]['ans']:
+
                         if aid['a_id'] == question_data[res]['compliance_answers'][aid['q_id']]['id']:
-                            print(True)
-                        else: print(False)
+                            pass
+                        else: 
+                            compliance_answer_check = False
+                            compliance_answer_check
+                    if compliance_answer_check: 
+                        correct_answers_count += 1
+                        
+                    else: incorrect_answers_count+=1
                     # pprint(question_data[res]['compliance_answers'])
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count

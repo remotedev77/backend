@@ -189,7 +189,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {
         "JWT [Bearer {JWT}]": {
-            "name": "Bearer",
+            "name": "Authorization",
             "type": "apiKey",
             "in": "header",
         }

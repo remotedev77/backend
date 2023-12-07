@@ -33,7 +33,7 @@ class CheckComplianceExamAPIView(APIView):
         q_ids = [q['q_id'] for q in request_list]
         questions = Question.objects.filter(id__in=q_ids).prefetch_related("child_questions", "compliance_answers", "answers")
         question_data = ComplianceQuestionExamSerializer(questions, many=True).data
-        response_data = test_check_exam(request_list=request_list, question_data=question_data, user=user)
+        # response_data = test_check_exam(request_list=request_list, question_data=question_data, user=user)
         return Response(question_data, status=status.HTTP_200_OK)
 
         return Response(response_data, status=status.HTTP_200_OK)
