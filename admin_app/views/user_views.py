@@ -25,9 +25,12 @@ User = get_user_model()
 class ChangeUserAPIView(APIView):
     permission_classes = [IsAdminOrSuperUser]
 
-    def get(self, request):
-
-        serializer = ChangeUserAdminSerializer(request.user)
+    def get(self, request, user_id):
+        try:
+            instance = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = GetUserForAdminSerializer(instance)
         return Response(serializer.data)
     
     @swagger_auto_schema(responses={200: ChangeUserAdminSerializer}, request_body=ChangeUserAdminSerializer)
@@ -72,6 +75,15 @@ class GetAllUserAPIView(APIView, UserPagination):
         results = self.paginate_queryset(users, request, view=self)
         serializer = GetAllUserAdminSerializer(results, many=True)
         return self.get_paginated_response(serializer.data)
+    
+
+    @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
+    def post(self, request):
+        serializer = CreateUserAdminSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateUserFromCSVAPIView(APIView):
@@ -121,15 +133,15 @@ class GetAdminUserAPIView(APIView):
         return Response(user_serializer_data.data)
     
 
-class CreateManagerOrSuperUserAPIView(APIView):
-    permission_classes = [IsSuperUser]
-    @swagger_auto_schema(responses={201:CreateManagerOrSuperUserSerializer}, request_body=CreateManagerOrSuperUserSerializer)
-    def post(self, request):
-        serializer = CreateManagerOrSuperUserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class CreateManagerOrSuperUserAPIView(APIView):
+#     permission_classes = [IsSuperUser]
+#     @swagger_auto_schema(responses={201:CreateManagerOrSuperUserSerializer}, request_body=CreateManagerOrSuperUserSerializer)
+#     def post(self, request):
+#         serializer = CreateManagerOrSuperUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class ManagerListCreateView(generics.ListCreateAPIView):

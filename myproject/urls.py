@@ -28,8 +28,13 @@ urlpatterns = [
                                        cache_timeout=0), name='schema-redoc'),
     # path("__debug__/", include("debug_toolbar.urls")),
     path('app/', include('my_app.urls')),
-    path('user/', include('users.urls')),
-    path('admin-api/', include('admin_app.urls'))
+    path('auth/', include('users.urls')),
+    # path('admin-api/', include('admin_app.urls')),
+    path('questions/', include('admin_app.urls.questions_urls')),
+    path('answers/', include('admin_app.urls.answers_urls')),
+    path('users/', include('admin_app.urls.users_urls')),
+    path('companies/', include('admin_app.urls.companies_urls')),
+    path('managers/', include('admin_app.urls.managers_urls'))
 
 ]
 admin.site.site_header = "Edu Simulator Admin"

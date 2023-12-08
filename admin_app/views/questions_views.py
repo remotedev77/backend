@@ -23,6 +23,26 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
         return self.get_paginated_response(question_serializer.data)
     
 
+    # @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
+    # def post(self, request):
+    #     serializer = CreateQuestionAdminSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
+    def post(self, request):
+        question_data = request.data
+        serializer = CreateQuestionAndAnswersAdminSerializer(data = question_data)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ChangeQuestionAdminAPIView(APIView):
     permission_classes = [IsAdminOrSuperUser]

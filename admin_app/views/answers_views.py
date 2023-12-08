@@ -17,6 +17,15 @@ class GetAllAnswerAdminAPIView(APIView, AnswerPagination):
         Answer_serializer = GetAllAnswerAdminSerializer(results, many=True)
         return self.get_paginated_response(Answer_serializer.data)
     
+    @swagger_auto_schema(responses={200: CreateAnswerAdminSerializer}, request_body=CreateAnswerAdminSerializer)
+    def post(self, request):
+        serializer = CreateAnswerAdminSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 class ChangeAnswerAdminAPIView(APIView):
@@ -31,23 +40,7 @@ class ChangeAnswerAdminAPIView(APIView):
         return Response(serializer.data)
     
 
-    @swagger_auto_schema(responses={200: ChangeAnswerAdminSerializer}, request_body=ChangeAnswerAdminSerializer)
-    def put(self, request):
-        answers_data = request.data
-        response_data = []
-        for data in answers_data:
-            try:
-                instance = Answer.objects.get(id=data['id'])
-            except Answer.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = ChangeAnswerAdminSerializer(instance=instance, data=data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                
-                response_data.append(serializer.data)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(response_data, status=status.HTTP_200_OK)
+
 
 
 
@@ -83,6 +76,34 @@ class DeleteAnswerAdminAPIView(APIView):
                 return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'id': openapi.Schema(type=openapi.TYPE_INTEGER)
+                }
+            )
+        )
+    )
+    def put(self, request):
+        answers_data = request.data
+        response_data = []
+        for data in answers_data:
+            try:
+                instance = Answer.objects.get(id=data['id'])
+            except Answer.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = ChangeAnswerAdminSerializer(instance=instance, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                
+                response_data.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(response_data, status=status.HTTP_200_OK)
 
 class CreateAnswerAdminAPIView(APIView):
     permission_classes = [IsAdminOrSuperUser]
