@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+import dj_database_url
 from pathlib import Path
 from django.conf import settings
 from dotenv import dotenv_values
@@ -123,6 +124,13 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 
+DATABASES = {
+    "default": dj_database_url.config(
+        default='mysql://root:A-E12ABDfg3faDAe-hhB624B--3EeA2G@roundhouse.proxy.rlwy.net:57146/railway',
+        conn_max_age=1800
+    )
+}
+
 
 # DATABASES = {
 #     "default": {
@@ -136,12 +144,12 @@ REST_FRAMEWORK = {
 #     }
 # }
 #Update for database for deploy
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 SWAGGER_SETTINGS = {
