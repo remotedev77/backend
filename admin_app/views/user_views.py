@@ -1,26 +1,91 @@
 import pandas as pd
 
-from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q, Count, Value
 from django.db.models.functions import Round
 from drf_yasg.utils import swagger_auto_schema 
+from drf_yasg import openapi
 
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
+
 from admin_app.permissions import IsAdminOrSuperUser, IsSuperUser
 from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateManagerOrSuperUserSerializer, CreateUserAdminSerializer, \
-    GetAllUserAdminSerializer, GetUserForAdminSerializer, UserAdminGetSerializer, CsvUserUploadSerializer
+    GetAllUserAdminSerializer, GetUserForAdminSerializer,  CsvUserUploadSerializer
 from admin_app.pagination import UserPagination
 
 from my_app.models import Statistic, Question
 from users.models import Company
 
 User = get_user_model()
+
+
+class UserFilterAPIView(APIView, UserPagination):
+
+    @swagger_auto_schema(
+            manual_parameters=[
+                openapi.Parameter(
+                    'search',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                ),
+                openapi.Parameter(
+                    'organization',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_INTEGER,
+                ),
+                openapi.Parameter(
+                    'certification',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_BOOLEAN,
+                ),
+                openapi.Parameter(
+                    'start_date',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.FORMAT_DATE,
+                ),
+                openapi.Parameter(
+                    'end_date',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.FORMAT_DATE,
+                )
+            ]
+    )
+    def get(self, request, *args, **kwargs):
+        filters = Q()
+        search_param = self.request.query_params.get('search')
+        organization_param = self.request.query_params.get('organization')
+        certification_param = True if self.request.query_params.get('certification') == 'true' else False
+        start_date_param = self.request.query_params.get('start_date')
+        end_date_param = self.request.query_params.get('end_date')
+
+        if search_param:
+            filters |= Q(first_name__icontains=search_param)
+            filters |= Q(last_name__icontains=search_param)
+            filters |= Q(father_name__icontains=search_param)
+        if organization_param:
+            try:
+                company = Company.objects.get(id=organization_param)
+                filters &= Q(organization_id=company)
+            except:
+                return Response("Organization not found", status=status.HTTP_400_BAD_REQUEST)
+        if certification_param:
+            
+            filters &= Q(final_test=certification_param)
+        if start_date_param:
+            filters &= Q(start_date__gte=start_date_param)
+        if end_date_param:
+            filters &= Q(end_date__lte=end_date_param)
+
+
+        users = User.objects.select_related("organization").filter(filters)
+        serializer = GetAllUserAdminSerializer(users, many=True)
+        return Response(serializer.data)
+    
 
 class ChangeUserAPIView(APIView):
     permission_classes = [IsAdminOrSuperUser]
@@ -56,26 +121,29 @@ class ChangeUserAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-# class CreateUserAdminAPIView(APIView):
-#     permission_classes = [IsAdminOrSuperUser]
-#     @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
-#     def post(self, request):
-#         serializer = CreateUserAdminSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class GetAllUserAPIView(APIView, UserPagination):
     permission_classes = [IsAdminOrSuperUser]
-    @swagger_auto_schema(responses={200: GetAllUserAdminSerializer})
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'page',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='Page number for paginated results',
+            ),
+        ],
+        responses={200: GetAllUserAdminSerializer},
+    )
     def get(self, request):
         users = User.objects.exclude(Q(is_staff=True) | Q(is_superuser=True))
-        results = self.paginate_queryset(users, request, view=self)
-        serializer = GetAllUserAdminSerializer(results, many=True)
-        return self.get_paginated_response(serializer.data)
-    
+        if self.request.query_params.get('page'):
+            results = self.paginate_queryset(users, request, view=self)
+            serializer = GetAllUserAdminSerializer(results, many=True)
+            return self.get_paginated_response(serializer.data)       
+        else: 
+            serializer = GetAllUserAdminSerializer(users, many=True)
+            return Response({"results":serializer.data})
 
     @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
     def post(self, request):
@@ -123,26 +191,6 @@ class CreateUserFromCSVAPIView(APIView):
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
     
-# class GetAdminUserAPIView(APIView):
-#     permission_classes = [IsAdminOrSuperUser]
-
-#     def get(self, request):
-#         user = request.user
-
-#         user_serializer_data = UserAdminGetSerializer(user)
-#         return Response(user_serializer_data.data)
-    
-
-# class CreateManagerOrSuperUserAPIView(APIView):
-#     permission_classes = [IsSuperUser]
-#     @swagger_auto_schema(responses={201:CreateManagerOrSuperUserSerializer}, request_body=CreateManagerOrSuperUserSerializer)
-#     def post(self, request):
-#         serializer = CreateManagerOrSuperUserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
 class ManagerListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
@@ -168,16 +216,6 @@ class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
-# class GetUserForAdminAPIView(APIView):
-#     permission_classes = [IsAdminOrSuperUser]
-
-#     def get(self, request, user_id):
-#         try:
-#             instance = User.objects.get(id=user_id)
-#         except User.DoesNotExist:
-#             return Response(status=status.HTTP_404_NOT_FOUND)
-#         serializer = GetUserForAdminSerializer(instance)
-#         return Response(serializer.data)
     
 
 class GetUserStatistic(APIView):
@@ -211,3 +249,49 @@ class GetUserStatistic(APIView):
         category_counts = list(category_counts)
         category_counts.append(data_count)
         return Response({"statistic":statistic, "category_counts": category_counts})
+    
+
+
+
+# class CreateUserAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+#     @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
+#     def post(self, request):
+#         serializer = CreateUserAdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class GetUserForAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+
+#     def get(self, request, user_id):
+#         try:
+#             instance = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         serializer = GetUserForAdminSerializer(instance)
+#         return Response(serializer.data)
+
+
+
+# class GetAdminUserAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+
+#     def get(self, request):
+#         user = request.user
+
+#         user_serializer_data = UserAdminGetSerializer(user)
+#         return Response(user_serializer_data.data)
+    
+
+# class CreateManagerOrSuperUserAPIView(APIView):
+#     permission_classes = [IsSuperUser]
+#     @swagger_auto_schema(responses={201:CreateManagerOrSuperUserSerializer}, request_body=CreateManagerOrSuperUserSerializer)
+#     def post(self, request):
+#         serializer = CreateManagerOrSuperUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
