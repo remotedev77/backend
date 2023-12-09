@@ -77,15 +77,15 @@ class ChangeQuestionAdminAPIView(APIView):
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-class CreateQuestionAdminAPIView(APIView):
-    permission_classes = [IsAdminOrSuperUser]
-    @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
-    def post(self, request):
-        serializer = CreateQuestionAdminSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class CreateQuestionAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+#     @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
+#     def post(self, request):
+#         serializer = CreateQuestionAdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateQusetionFromCSVAPIView(APIView):
@@ -131,18 +131,18 @@ class CreateQusetionFromCSVAPIView(APIView):
         return Response(status=status.HTTP_200_OK)
     
 
-class CreateQuestionAndAnswer(APIView):
-    permission_classes = [IsAdminOrSuperUser]
-    # parser_classes = (MultiPartParser,)
-    @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
-    def post(self, request):
-        question_data = request.data
-        serializer = CreateQuestionAndAnswersAdminSerializer(data = question_data)
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-            except:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class CreateQuestionAndAnswer(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+#     # parser_classes = (MultiPartParser,)
+#     @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
+#     def post(self, request):
+#         question_data = request.data
+#         serializer = CreateQuestionAndAnswersAdminSerializer(data = question_data)
+#         if serializer.is_valid():
+#             try:
+#                 with transaction.atomic():
+#                     serializer.save()
+#                     return Response(serializer.data, status=status.HTTP_200_OK)
+#             except:
+#                 return Response(status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

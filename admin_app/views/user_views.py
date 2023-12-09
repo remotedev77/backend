@@ -56,15 +56,15 @@ class ChangeUserAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-class CreateUserAdminAPIView(APIView):
-    permission_classes = [IsAdminOrSuperUser]
-    @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
-    def post(self, request):
-        serializer = CreateUserAdminSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class CreateUserAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+#     @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
+#     def post(self, request):
+#         serializer = CreateUserAdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetAllUserAPIView(APIView, UserPagination):
@@ -123,14 +123,14 @@ class CreateUserFromCSVAPIView(APIView):
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
     
-class GetAdminUserAPIView(APIView):
-    permission_classes = [IsAdminOrSuperUser]
+# class GetAdminUserAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
 
-    def get(self, request):
-        user = request.user
+#     def get(self, request):
+#         user = request.user
 
-        user_serializer_data = UserAdminGetSerializer(user)
-        return Response(user_serializer_data.data)
+#         user_serializer_data = UserAdminGetSerializer(user)
+#         return Response(user_serializer_data.data)
     
 
 # class CreateManagerOrSuperUserAPIView(APIView):
@@ -168,16 +168,16 @@ class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
-class GetUserForAdminAPIView(APIView):
-    permission_classes = [IsAdminOrSuperUser]
+# class GetUserForAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
 
-    def get(self, request, user_id):
-        try:
-            instance = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = GetUserForAdminSerializer(instance)
-        return Response(serializer.data)
+#     def get(self, request, user_id):
+#         try:
+#             instance = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         serializer = GetUserForAdminSerializer(instance)
+#         return Response(serializer.data)
     
 
 class GetUserStatistic(APIView):

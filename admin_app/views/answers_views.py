@@ -105,16 +105,16 @@ class DeleteAnswerAdminAPIView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(response_data, status=status.HTTP_200_OK)
 
-class CreateAnswerAdminAPIView(APIView):
-    permission_classes = [IsAdminOrSuperUser]
+# class CreateAnswerAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
 
-    @swagger_auto_schema(responses={200: CreateAnswerAdminSerializer}, request_body=CreateAnswerAdminSerializer)
-    def post(self, request):
-        serializer = CreateAnswerAdminSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     @swagger_auto_schema(responses={200: CreateAnswerAdminSerializer}, request_body=CreateAnswerAdminSerializer)
+#     def post(self, request):
+#         serializer = CreateAnswerAdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 

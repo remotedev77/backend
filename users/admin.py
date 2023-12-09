@@ -29,7 +29,7 @@ class UserAdmin(BaseUserAdmin):
     # search_fields = []
     # autocomplete_fields = ["organization"]
     fieldsets = (
-        (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test',
+        (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test','role',
                     'organization', 'password', 'main_test_count','start_date', 'end_date', 'access')}),
         
         ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser','groups','is_active')}),
@@ -41,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
             'classes': ('wide',),
             'fields': ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
                     'organization', 'is_admin', 'is_staff','groups','is_superuser', 'is_active', 'main_test_count',
-                    'start_date', 'end_date', 'access'),
+                    'start_date', 'end_date', 'access', 'role'),
         }),
     )
     search_fields = ('email',)

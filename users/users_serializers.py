@@ -56,10 +56,6 @@ class UserGetSerializer(serializers.ModelSerializer):
                    "is_superuser", "password", "last_login",
                    "groups", "user_permissions"]
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        return representation
-    
     def get_organization(self, obj):
         if obj.organization is not None:
             return obj.organization.company_name
