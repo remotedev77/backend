@@ -1,35 +1,51 @@
-import csv, pandas as pd
-import io
-from my_app.models import Question, Answer
-from admin_app.pagination import QuestionPagination
-from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, \
-    CreateQuestionAdminSerializer, CreateQuestionAndAnswersAdminSerializer
-from admin_app.serializers.answers_serializers import CreateAnswerAdminSerializer
+import pandas as pd
 
-from admin_app.permissions import IsAdminOrSuperUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from drf_yasg.utils import swagger_auto_schema 
+from drf_yasg import openapi
 from django.db import transaction
+from django.db.models import Q
+
+from my_app.models import Question, Answer
+
+from admin_app.permissions import IsAdminOrSuperUser
+from admin_app.pagination import QuestionPagination
+from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, \
+    CreateQuestionAdminSerializer, CreateQuestionAndAnswersAdminSerializer
+from admin_app.serializers.answers_serializers import CreateAnswerAdminSerializer
+
 
 class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
-    permission_classes = [IsAdminOrSuperUser] 
+    permission_classes = [IsAdminOrSuperUser]
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'page',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='Page number for paginated results',
+            ),
+            openapi.Parameter(
+                'search',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ],
+        responses={200: GetAllQuestionAdminSerializer},
+    )
     def get(self, request):
-        questions = Question.objects.prefetch_related('answers').all()
+        filters = Q()
+        search_param = self.request.query_params.get('search')
+        if search_param:
+            filters &=Q(question__icontains = search_param)
+        questions = Question.objects.prefetch_related('answers').filter(filters)
         results = self.paginate_queryset(questions, request, view=self)
         question_serializer = GetAllQuestionAdminSerializer(results, many=True)
         return self.get_paginated_response(question_serializer.data)
     
-
-    # @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
-    # def post(self, request):
-    #     serializer = CreateQuestionAdminSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
     def post(self, request):
         question_data = request.data
@@ -43,6 +59,13 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
+    # def post(self, request):
+    #     serializer = CreateQuestionAdminSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangeQuestionAdminAPIView(APIView):
     permission_classes = [IsAdminOrSuperUser]
@@ -77,15 +100,7 @@ class ChangeQuestionAdminAPIView(APIView):
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# class CreateQuestionAdminAPIView(APIView):
-#     permission_classes = [IsAdminOrSuperUser]
-#     @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
-#     def post(self, request):
-#         serializer = CreateQuestionAdminSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CreateQusetionFromCSVAPIView(APIView):
@@ -130,6 +145,18 @@ class CreateQusetionFromCSVAPIView(APIView):
             return Response("Data in excel is wrong", status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
     
+
+
+# class CreateQuestionAdminAPIView(APIView):
+#     permission_classes = [IsAdminOrSuperUser]
+#     @swagger_auto_schema(responses={200: CreateQuestionAdminSerializer}, request_body=CreateQuestionAdminSerializer)
+#     def post(self, request):
+#         serializer = CreateQuestionAdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # class CreateQuestionAndAnswer(APIView):
 #     permission_classes = [IsAdminOrSuperUser]

@@ -34,8 +34,8 @@ class CheckExamAPIView(APIView):
             Prefetch("answers", queryset=Answer.objects.all())
         )
         question_data = QuestionExamSerializer(questions, many=True).data
-        # response_data = check_exam(request_list=request_list, question_data=question_data, user=user)
-        return Response(question_data, status=status.HTTP_200_OK)
+        response_data = check_exam(request_list=request_list, question_data=question_data, user=user)
+        # return Response(question_data, status=status.HTTP_200_OK)
 
         return Response(response_data, status=status.HTTP_200_OK)
 
