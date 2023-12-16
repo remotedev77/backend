@@ -132,18 +132,71 @@ class GetAllUserAPIView(APIView, UserPagination):
                 type=openapi.TYPE_INTEGER,
                 description='Page number for paginated results',
             ),
+            openapi.Parameter(
+                'search',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                'organization',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                'certification',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_BOOLEAN,
+            ),
+            openapi.Parameter(
+                'start_date',
+                in_=openapi.IN_QUERY,
+                type=openapi.FORMAT_DATE,
+            ),
+            openapi.Parameter(
+                'end_date',
+                in_=openapi.IN_QUERY,
+                type=openapi.FORMAT_DATE,
+            )
         ],
         responses={200: GetAllUserAdminSerializer},
     )
     def get(self, request):
         users = User.objects.exclude(Q(is_staff=True) | Q(is_superuser=True))
-        if self.request.query_params.get('page'):
+        
+        if self.request.query_params:
+            filters = Q()
+            search_param = self.request.query_params.get('search')
+            
+            organization_param = self.request.query_params.get('organization')
+            certification_param = True if self.request.query_params.get('certification') == 'true' else False
+            start_date_param = self.request.query_params.get('start_date')
+            end_date_param = self.request.query_params.get('end_date')
+
+            if search_param:
+                filters |= Q(first_name__icontains=search_param)
+                filters |= Q(last_name__icontains=search_param)
+                filters |= Q(father_name__icontains=search_param)
+            if organization_param:
+                try:
+                    company = Company.objects.get(id=organization_param)
+                    filters &= Q(organization_id=company)
+                except:
+                    return Response("Organization not found", status=status.HTTP_400_BAD_REQUEST)
+            if certification_param:
+                
+                filters &= Q(final_test=certification_param)
+            if start_date_param:
+                filters &= Q(start_date__gte=start_date_param)
+            if end_date_param:
+                filters &= Q(end_date__lte=end_date_param)
+
+            users = User.objects.select_related("organization").filter(filters)
             results = self.paginate_queryset(users, request, view=self)
             serializer = GetAllUserAdminSerializer(results, many=True)
             return self.get_paginated_response(serializer.data)       
         else: 
             serializer = GetAllUserAdminSerializer(users, many=True)
-            return Response({"results":serializer.data})
+            return Response(serializer.data)
 
     @swagger_auto_schema(responses={200: CreateUserAdminSerializer}, request_body=CreateUserAdminSerializer)
     def post(self, request):
@@ -196,6 +249,29 @@ class ManagerListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     serializer_class = CreateManagerOrSuperUserSerializer
     permission_classes = [IsSuperUser]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'role',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in User.RoleChoices.choices[1:]]
+            )
+        ],responses={200: CreateManagerOrSuperUserSerializer},
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        filters = Q()
+        filters |= Q(is_staff=True)
+        filters |= Q(is_superuser=True)
+        role_param = self.request.query_params.get('role')
+        if role_param:
+            filters &=Q(role = role_param)
+        queryset = User.objects.filter(filters)
+        return queryset
 
 class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
