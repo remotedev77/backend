@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
 from django.conf import settings
 from dotenv import dotenv_values
 
@@ -122,19 +123,24 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-
-
 DATABASES = {
-    "default": {
-        'ENGINE': "django.db.backends.mysql",
-        'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
-        'HOST': config["HOST"],
-        'PORT': config["PORT"],
-        'USER': config["USER"],
-        'PASSWORD': config["PASSWORD"],
-        'NAME': config["NAME"],
-    }
+    "default": dj_database_url.config(
+        default='mysql://root:A-E12ABDfg3faDAe-hhB624B--3EeA2G@roundhouse.proxy.rlwy.net:57146/railway',
+        conn_max_age=1800
+    )
 }
+
+# DATABASES = {
+#     "default": {
+#         'ENGINE': "django.db.backends.mysql",
+#         'OPTIONS': {'ssl': {'ca': config['OPTIONS']}},
+#         'HOST': config["HOST"],
+#         'PORT': config["PORT"],
+#         'USER': config["USER"],
+#         'PASSWORD': config["PASSWORD"],
+#         'NAME': config["NAME"],
+#     }
+# }
 #Update for database for deploy
 # DATABASES = {
 #     'default': {

@@ -1,7 +1,7 @@
 from pprint import pprint
 from rest_framework import serializers
 from my_app.models import Question, Answer
-from admin_app.serializers.answers_serializers import GetAllAnswerAdminSerializer, CreateAnswerAdminSerializer, CreateAnswer
+from admin_app.serializers.answers_serializers import ChangeAnswerAdminSerializer, GetAllAnswerAdminSerializer, CreateAnswerAdminSerializer, CreateAnswer
 
 class GetAllQuestionAdminSerializer(serializers.ModelSerializer):
     answers = GetAllAnswerAdminSerializer(many=True)
@@ -11,14 +11,18 @@ class GetAllQuestionAdminSerializer(serializers.ModelSerializer):
 
 
 class ChangeQuestionAdminSerializer(serializers.ModelSerializer):
-    answers = GetAllAnswerAdminSerializer(many=True)
+    answers = ChangeAnswerAdminSerializer(many=True)
     class Meta:
         model = Question
         fields = "__all__"
 
     def update(self, instance, validated_data):
+        answers_data = validated_data.pop('answers', [])
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        instance.answers.all().delete()
+        for answer in answers_data:
+            Answer.objects.create(question_id=instance, **answer)
         instance.save()
         return instance
     

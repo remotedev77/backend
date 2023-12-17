@@ -78,7 +78,7 @@ class ChangeQuestionAdminAPIView(APIView):
         serializer = ChangeQuestionAdminSerializer(instance)
         return Response(serializer.data)
     
-    @swagger_auto_schema(responses={200: ChangeQuestionAdminSerializer}, request_body=ChangeQuestionAdminSerializer)
+    @swagger_auto_schema(responses={200: ChangeQuestionAdminSerializer(many=True)}, request_body=ChangeQuestionAdminSerializer)
     def put(self, request, question_id):
         try:
             instance = Question.objects.get(id=question_id)
