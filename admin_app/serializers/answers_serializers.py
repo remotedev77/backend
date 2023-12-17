@@ -8,16 +8,19 @@ class GetAllAnswerAdminSerializer(serializers.ModelSerializer):
         fields = ('id','answer', 'is_correct')
 
 
+
+
 class ChangeAnswerAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = "__all__"
 
-    def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     print("Tamerlan",validated_data)
+    #     for attr, value in validated_data.items():
+    #         setattr(instance, attr, value)
+    #     instance.save()
+    #     return instance
     
 class CreateAnswerAdminSerializer(serializers.ModelSerializer):
     class Meta:
