@@ -170,8 +170,9 @@ class GetAllUserAPIView(APIView, UserPagination):
             organization_param = self.request.query_params.get('organization')
             certification_param = True if self.request.query_params.get('certification') == 'true' else False
             start_date_param = self.request.query_params.get('start_date')
-            
             end_date_param = self.request.query_params.get('end_date')
+
+
 
             if search_param:
                 filters |= Q(first_name__icontains=search_param)
@@ -188,8 +189,8 @@ class GetAllUserAPIView(APIView, UserPagination):
                 filters &= Q(final_test=certification_param)
             if start_date_param:
                 start_date_obj = json.loads(start_date_param)
-                start_date_from = start_date_obj.data.get('from')
-                start_date_to = start_date_obj.data.get('to')
+                start_date_from = start_date_obj.get('from')
+                start_date_to = start_date_obj.get('to')
                 if start_date_from:
                     filters &= Q(start_date__gte=start_date_from)
                 if start_date_to:
@@ -197,8 +198,8 @@ class GetAllUserAPIView(APIView, UserPagination):
 
             if end_date_param:
                 end_date_obj = json.loads(end_date_param)
-                end_date_from = end_date_obj.data.get('from')
-                end_date_to = end_date_obj.data.get('to')
+                end_date_from = end_date_obj.get('from')
+                end_date_to = end_date_obj.get('to')
                 if end_date_from:
                     filters &= Q(end_date__gte=end_date_from)
                 if end_date_to:
