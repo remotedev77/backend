@@ -32,6 +32,12 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
                 'search',
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                'note',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                enum=[choice for choice in ['multiple', 'single']]
             )
         ],
         responses={200: GetAllQuestionAdminSerializer},
@@ -39,8 +45,11 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
     def get(self, request):
         filters = Q()
         search_param = self.request.query_params.get('search')
+        note = self.request.query_params.get('note')
         if search_param:
             filters &=Q(question__icontains = search_param)
+        if note:
+            filters &=Q(note = note)
         questions = Question.objects.prefetch_related('answers').filter(filters)
         results = self.paginate_queryset(questions, request, view=self)
         question_serializer = GetAllQuestionAdminSerializer(results, many=True)

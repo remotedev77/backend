@@ -16,7 +16,7 @@ from rest_framework.parsers import MultiPartParser
 from admin_app.permissions import IsAdminOrSuperUser, IsSuperUser
 from admin_app.serializers.user_serializers import ChangeUserAdminSerializer, CreateManagerOrSuperUserSerializer, CreateUserAdminSerializer, \
     GetAllUserAdminSerializer, GetUserForAdminSerializer,  CsvUserUploadSerializer
-from admin_app.pagination import UserPagination
+from admin_app.pagination import UserPagination, ManagerPagination
 
 from my_app.models import Statistic, Question
 from users.models import Company
@@ -264,7 +264,7 @@ class ManagerListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     serializer_class = CreateManagerOrSuperUserSerializer
     permission_classes = [IsSuperUser]
-
+    pagination_class = ManagerPagination 
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
