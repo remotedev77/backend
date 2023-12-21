@@ -1,14 +1,15 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from admin_app.serializers.company_serializers import CompanySerializer
-
-from users.models import Company
 from admin_app.permissions import IsAdminOrSuperUser
+from admin_app.pagination import CompanyPagination
+from users.models import Company
 
 class CompanyListCreateView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     permission_classes = [IsAdminOrSuperUser]
+    pagination_class = CompanyPagination
 
 class CompanyRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
