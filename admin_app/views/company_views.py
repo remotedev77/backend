@@ -11,6 +11,13 @@ class CompanyListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdminOrSuperUser]
     pagination_class = CompanyPagination
 
+    def get(self, request, *args, **kwargs):
+        if 'page' not in request.query_params:
+            # Disable pagination if 'page' is not present
+            self.pagination_class = None
+        return self.list(request, *args, **kwargs)
+    
+    
 class CompanyRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer

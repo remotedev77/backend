@@ -276,6 +276,9 @@ class ManagerListCreateView(generics.ListCreateAPIView):
         ],responses={200: CreateManagerOrSuperUserSerializer},
     )
     def get(self, request, *args, **kwargs):
+        if 'page' not in request.query_params:
+            # Disable pagination if 'page' is not present
+            self.pagination_class = None
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
