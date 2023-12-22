@@ -263,7 +263,7 @@ class CreateUserFromCSVAPIView(APIView):
 class ManagerListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     serializer_class = CreateManagerOrSuperUserSerializer
-    permission_classes = [IsSuperUser]
+    # permission_classes = [IsSuperUser]
     pagination_class = ManagerPagination 
     @swagger_auto_schema(
         manual_parameters=[
