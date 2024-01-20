@@ -22,7 +22,7 @@ class AnswerTabularInline(admin.TabularInline):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerTabularInline]
-    list_display = ['question', 'question_code','note']
+    list_display = ['question', 'question_code','note', 'direction_type']
     search_fields = ['question']
 
 

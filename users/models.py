@@ -11,6 +11,10 @@ class Company(models.Model):
     def __str__(self):
         return self.company_name
 
+
+class Direction(models.Model):
+    name = models.CharField(max_length=50)
+
 class User(AbstractUser):
     class AccessChoices(models.TextChoices):
         открыт = 'открыт'
@@ -38,6 +42,8 @@ class User(AbstractUser):
     main_test_count = models.IntegerField(default=0)
     final_test = models.BooleanField(default=False, blank=True, null=True) #delete blank and null
     role = models.CharField(max_length=20,choices=RoleChoices.choices, default=RoleChoices.user, blank=True, null=True)
+    direction_type = models.ForeignKey(Direction, on_delete=models.CASCADE, blank=True, null=True)
+    
     objects = UserManager()
     
     USERNAME_FIELD = 'email'

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from users.models import Direction
+
 # Create your models here.
 User = get_user_model()
 
@@ -21,7 +23,8 @@ class Question(models.Model):
     correct_answer_description = models.TextField(blank=True, null=True) #apisaniya
     work_function = models.TextField(max_length=300, blank=True, null=True) #trud funksiya
     note = models.CharField(max_length=50, blank=True, null=True, default="single") #primecaniya
-
+    direction_type = models.ForeignKey(Direction, on_delete=models.CASCADE, blank=True, null=True)
+    
     def has_change_permission(self, request, obj=None):
         if obj and obj.user.is_admin:
             print("HELLO")

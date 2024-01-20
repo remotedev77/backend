@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Permission
 
-from my_app.models import User
+from my_app.models import User, Direction
 from users.models import Company, AdminTable
 from users.forms import *
 # Register your models here.
@@ -12,6 +12,11 @@ from users.forms import *
 @admin.register(AdminTable)
 class AdminModelAdmin(admin.ModelAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff','is_superuser', 'is_active')
+
+
+@admin.register(Direction)
+class DirectionModelAdmin(admin.ModelAdmin):
+    list_display = ['name']
 
 
 class UserAdmin(BaseUserAdmin):
