@@ -10,6 +10,7 @@ from django.db import transaction
 from django.db.models import Q
 
 from my_app.models import Question, Answer
+from users.models import Direction
 
 from admin_app.permissions import IsAdminOrSuperUser
 from admin_app.pagination import QuestionPagination
@@ -38,7 +39,13 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
                 enum=[choice for choice in ['multiple', 'single']]
-            )
+            ),
+            openapi.Parameter(
+                'direction_id',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='Direction id',
+            ),
         ],
         responses={200: GetAllQuestionAdminSerializer},
     )
@@ -46,10 +53,16 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
         filters = Q()
         search_param = self.request.query_params.get('search')
         note = self.request.query_params.get('note')
+        direction_id =  self.request.query_params.get('direction_id')
+
         if search_param:
             filters &=Q(question__icontains = search_param)
         if note:
             filters &=Q(note = note)
+        if direction_id:
+            direction = Direction.objects.filter(id=direction_id).first()
+            filters &=Q(direction_type = direction)
+            
         questions = Question.objects.prefetch_related('answers').filter(filters)
         results = self.paginate_queryset(questions, request, view=self)
         question_serializer = GetAllQuestionAdminSerializer(results, many=True)

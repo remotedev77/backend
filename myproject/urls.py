@@ -34,7 +34,8 @@ urlpatterns = [
     path('answers/', include('admin_app.urls.answers_urls')),
     path('users/', include('admin_app.urls.users_urls')),
     path('companies/', include('admin_app.urls.companies_urls')),
-    path('managers/', include('admin_app.urls.managers_urls'))
+    path('managers/', include('admin_app.urls.managers_urls')),
+    path('directions/', include('admin_app.urls.directions_urls')),
 
 ]
 admin.site.site_header = "Edu Simulator Admin"
