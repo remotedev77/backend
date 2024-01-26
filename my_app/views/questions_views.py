@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema 
+from drf_yasg import openapi
 # from admin_app.pagination import QuestionPagination
 from my_app.models import Question, Answer, Statistic, User
 from my_app.serializer.question_serializers import *
@@ -14,11 +16,43 @@ from my_app.utils import check_exam, check_marafon, check_final_test, check_by_c
 
 class GetQuestionAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'category_name',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='Page number for paginated results',
+            )
+        ],
+        # responses={200: GetAllQuestionAdminSerializer},
+    )
     def get(self, request):
-        all_question_ids = Question.objects.values_list('id', flat=True) #save this data on chace for optimize
-        random_question_ids = random.sample(list(all_question_ids), 50)
-        random_questions = Question.objects.filter(id__in=random_question_ids)
+        if 'category_name' in self.request.query_params:
+            user = request.user
+            category_name = self.request.query_params.get('category_name')
+            if category_name == 'Не решал':
 
+                category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(user_id=user).values_list("question_id")
+                if category_questions.exists():
+                    questions = Question.objects.prefetch_related('answers').exclude(id__in=category_questions)
+                    ser = QuestionSerializer(questions, many=True)
+                    return Response(ser.data, status=status.HTTP_200_OK)
+                else:
+                    questions = Question.objects.prefetch_related('answers').all()
+                    ser = QuestionSerializer(questions, many=True)
+                    return Response(ser.data, status=status.HTTP_200_OK)
+            else:
+                category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(Q(user_id=user) & Q(category=category_name)).values_list("question_id")
+
+                if category_questions.exists():
+                    questions = Question.objects.prefetch_related('answers').filter(id__in=category_questions)
+                    ser = QuestionSerializer(questions, many=True)
+                    return Response(ser.data, status=status.HTTP_200_OK)
+                return Response([], status=status.HTTP_404_NOT_FOUND)
+        total_records = Question.objects.count()
+        offset = random.randint(0, max(0, total_records - 50))
+        random_questions = Question.objects.all()[offset:offset+50]
         serializer = QuestionSerializer(random_questions, many=True)
 
         return Response(serializer.data)
