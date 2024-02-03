@@ -82,6 +82,15 @@ class CreateManagerOrSuperUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id",'email', 'password', 'first_name', 'last_name', 'role', 'father_name', 'is_staff', 'is_admin', 'is_superuser']
     def create(self, validated_data):
+        if validated_data['role'] == 'manager':
+            validated_data['is_admin'] = True
+            validated_data['is_superuser'] = False
+        elif validated_data['role'] == 'admin':
+                validated_data['is_admin'] = True
+                validated_data['is_superuser'] = True
+        elif validated_data['role'] == 'user':
+            validated_data['is_admin'] = False
+            validated_data['is_superuser'] = False
         return User.objects.create_user(**validated_data)
 
 
