@@ -283,13 +283,14 @@ class ManagerListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         filters = Q()
-        filters |= Q(is_staff=True)
-        filters |= Q(is_superuser=True)
+        # filters |= Q(is_staff=True)
+        # filters |= Q(is_superuser=True)
         role_param = self.request.query_params.get('role')
         if role_param:
             filters &=Q(role = role_param)
-        queryset = User.objects.filter(filters)
-        return queryset
+            queryset = User.objects.filter(filters)
+            return queryset
+        return []
 
 class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
