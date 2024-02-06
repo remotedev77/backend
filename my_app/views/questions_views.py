@@ -2,6 +2,7 @@ import random, json
 from typing import List, Dict
 from django.db.models import Prefetch, Q
 from django.db import connection
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -23,14 +24,15 @@ class GetQuestionAPIView(APIView):
                 'category_name',
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description='Page number for paginated results',
+                description='Question category',
             )
         ],
         # responses={200: GetAllQuestionAdminSerializer},
     )
     def get(self, request):
+        user = request.user
+
         if 'category_name' in self.request.query_params:
-            user = request.user
             category_name = self.request.query_params.get('category_name')
             if category_name == 'Не решал':
 
@@ -53,10 +55,10 @@ class GetQuestionAPIView(APIView):
                 return Response([], status=status.HTTP_404_NOT_FOUND)
         random_instance_or_none = Question.objects.raw('''
             SELECT * FROM {0}
-            WHERE id >= (SELECT FLOOR(RAND() * (SELECT MAX(id) FROM {0})))
+            WHERE id >= (SELECT FLOOR(RAND() * (SELECT MAX(id) FROM {0}))) and direction_type_id = {1}
             ORDER BY RAND() LIMIT 50
     
-        '''.format(Question._meta.db_table))
+        '''.format(Question._meta.db_table, user.direction_type.id))
         serializer = QuestionSerializer(random_instance_or_none, many=True)
         return Response(serializer.data)
 

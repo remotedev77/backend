@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import dj_database_url
 from django.conf import settings
+from celery.schedules import crontab
 from dotenv import dotenv_values
 
 config = dotenv_values('myproject/.env')
@@ -50,7 +51,7 @@ INSTALLED_APPS = [
     'admin_app',
     'rest_framework',
     "corsheaders",
-    
+    'django_celery_beat',
     'rest_framework_simplejwt',
     # "debug_toolbar",
     'drf_yasg',
@@ -286,3 +287,41 @@ JAZZMIN_SETTINGS = {
 AUTOCOMMIT = False
 # CELERY_BROKER_URL = "redis://0.0.0.0:6379/0"
 # CELERY_RESULT_BACKEND = "redis://0.0.0.0:6379/0"
+
+CELERY_TIMEZONE = "Asia/Baku"
+CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER="redis://redis:6379/0"
+CELERY_BACKEND="redis://redis:6379/0"
+CELERY_BEAT_SCHEDULE = {
+    'run-every-minute': {
+        'task': 'users.tasks.my_task',
+        'schedule': 60.0,  # Every 60 seconds (1 minute)
+    },
+}
+
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'default': {
+                'format': '[DJANGO] %(levelname)s %(asctime)s %(module)s '
+                          '%(name)s.%(funcName)s:%(lineno)s: %(message)s'
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'default',
+            }
+        },
+        'loggers': {
+            '*': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True,
+            }
+        },
+    }
