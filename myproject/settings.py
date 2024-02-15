@@ -295,8 +295,12 @@ CELERY_BROKER="redis://redis:6379/0"
 CELERY_BACKEND="redis://redis:6379/0"
 CELERY_BEAT_SCHEDULE = {
     'run-every-minute': {
-        'task': 'users.tasks.my_task',
-        'schedule': 60.0,  # Every 60 seconds (1 minute)
+        'task': 'users.tasks.user_end_date_task',
+        'schedule': 86400.0,  # Every 60 seconds (1 minute)
+    },
+    'run-every-minute-startdate': {
+        'task': 'users.tasks.user_start_date_task',
+        'schedule': 86400.0, 
     },
 }
 
