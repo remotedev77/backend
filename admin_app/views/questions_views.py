@@ -165,8 +165,7 @@ class CreateQusetionFromCSVAPIView(APIView):
                     if question_type_count>1:
                         question.note="multiple"
                         question.save()
-                if i == 10:
-                    break
+
         except:
             return Response("Data in excel is wrong", status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
