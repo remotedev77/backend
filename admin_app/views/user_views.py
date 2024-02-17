@@ -261,7 +261,7 @@ class CreateUserFromCSVAPIView(APIView):
     
 
 class ManagerListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+    queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True) | Q(is_admin=True))
     serializer_class = CreateManagerOrSuperUserSerializer
     # permission_classes = [IsSuperUser]
     pagination_class = ManagerPagination 
@@ -290,7 +290,8 @@ class ManagerListCreateView(generics.ListCreateAPIView):
             filters &=Q(role = role_param)
             queryset = User.objects.filter(filters)
             return queryset
-        return []
+        
+        return super().get_queryset()
 
 class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()

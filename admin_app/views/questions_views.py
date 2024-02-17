@@ -144,7 +144,8 @@ class CreateQusetionFromCSVAPIView(APIView):
             return Response("Excel data is wrong", status=status.HTTP_400_BAD_REQUEST)
         try:
             # with transaction.atomic():
-            for i in range(len(df_data_answer)):
+            for i in range(2422,len(df_data_answer)):
+                print(df_data_question[i])
                 
                 questions = Question.objects.filter(question=df_data_question[i])
                 print(i)
