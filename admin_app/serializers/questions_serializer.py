@@ -47,7 +47,8 @@ class CreateQuestionAndAnswersAdminSerializer(serializers.ModelSerializer):
                                        question_code = validated_data.get("question_code"),
                                        correct_answer_description = validated_data.get("correct_answer_description"),
                                        work_function = validated_data.get("work_function"),
-                                       note = validated_data.get("note"))
+                                       note = validated_data.get("note"),
+                                       direction_type = validated_data.get("direction_type"))
         if ans is not None:
             for ans_data in ans:
                 Answer.objects.create(answer = ans_data.get("answer"),
