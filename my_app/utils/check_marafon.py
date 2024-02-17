@@ -27,7 +27,7 @@ def check_marafon(request_list: list, question_data: OrderedDict, user):
                     'description': '',
                     'answers':[]
                 }
-                answer_strfucture_list = structured_answers_response(answers=question_data[res]['answers'])
+                answer_strfucture_list = structured_answers_response(answers=question_data[res]['answers'], request_list=request_list[req]['a_id'])
                 data['answers'] = answer_strfucture_list
                 data['description'] = question_data[res]['correct_answer_description']
                 data["question"] = question_data[res]['question']
