@@ -8,5 +8,3 @@ urlpatterns = [
     # path('upload-csv-question-file/', questions_views.CreateQusetionFromCSVAPIView.as_view()),
 
 ]
-    # path('create-question/', questions_views.CreateQuestionAdminAPIView.as_view()),
-# path('create-question-and-answer/', questions_views.CreateQuestionAndAnswer.as_view()),

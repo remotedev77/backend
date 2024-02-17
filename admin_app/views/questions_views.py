@@ -1,22 +1,21 @@
-import pandas as pd
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser
+
 from drf_yasg.utils import swagger_auto_schema 
 from drf_yasg import openapi
 from django.db import transaction
 from django.db.models import Q
 
-from my_app.models import Question, Answer
+from my_app.models import Question
 from users.models import Direction
 
 from admin_app.permissions import IsAdminOrSuperUser
 from admin_app.pagination import QuestionPagination
 from admin_app.serializers.questions_serializer import GetAllQuestionAdminSerializer, ChangeQuestionAdminSerializer, \
-    CreateQuestionAdminSerializer, CreateQuestionAndAnswersAdminSerializer
-from admin_app.serializers.answers_serializers import CreateAnswerAdminSerializer
+   CreateQuestionAndAnswersAdminSerializer
+
 
 
 
