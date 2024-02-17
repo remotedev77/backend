@@ -60,16 +60,6 @@ class UserAdminGetSerializer(serializers.ModelSerializer):
         model = User
         exclude = ["is_admin"]
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     if representation['is_superuser']:
-    #         representation['role'] = 'admin'
-    #         return representation
-        
-    #     elif representation['is_staff']:
-    #         representation['role'] = 'manager'
-    #         return representation
-    #     return representation
     
     def get_organization(self, obj):
         if obj.organization is not None:

@@ -25,7 +25,10 @@ def check_by_category(request_list: list, question_data: OrderedDict, user):
                     'description': '',
                     'answers':[]
                 }
-                data['answers'] = [ans for ans in question_data[res]['answers'].values()]
+                for id, ans in question_data[res]['answers'].items():
+                    if id in request_list[req]['a_id']: ans['user_selected'] = True
+                    else: ans['user_selected'] = False
+                    data['answers'].append(ans)
                 data['description'] = question_data[res]['correct_answer_description']
                 data["question"] = question_data[res]['question']
                 if len(answer_id_list) > 0:

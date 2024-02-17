@@ -18,14 +18,19 @@ def check_exam(request_list: list, question_data: OrderedDict, user):
         for res in range(len(question_data)):
             if request_list[req]['q_id'] == question_data[res]['id']:
                 answer_id_list = request_list[req]['a_id']
+                
                 data: Dict[str, object] = {
                     'question': '',
                     'is_correct': False,
                     'user_selected_check':None,
                     'description': '',
                     'answers':[]
-                }
-                data['answers'] = [ans for ans in question_data[res]['answers'].values()]
+                }        
+                for id, ans in question_data[res]['answers'].items():
+                    if id in request_list[req]['a_id']: ans['user_selected'] = True
+                    else: ans['user_selected'] = False
+                    data['answers'].append(ans)
+
                 data['description'] = question_data[res]['correct_answer_description']
                 data["question"] = question_data[res]['question']
                 if len(answer_id_list) > 0:

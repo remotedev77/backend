@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "corsheaders",
     'django_celery_beat',
     'rest_framework_simplejwt',
+    'django_extensions',
     # "debug_toolbar",
     'drf_yasg',
 ]
@@ -305,27 +306,3 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'default': {
-                'format': '[DJANGO] %(levelname)s %(asctime)s %(module)s '
-                          '%(name)s.%(funcName)s:%(lineno)s: %(message)s'
-            },
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'default',
-            }
-        },
-        'loggers': {
-            '*': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': True,
-            }
-        },
-    }
