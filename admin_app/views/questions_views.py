@@ -71,14 +71,17 @@ class GetAllQuestionAdminAPIView(APIView, QuestionPagination):
     @swagger_auto_schema(responses={200: CreateQuestionAndAnswersAdminSerializer}, request_body=CreateQuestionAndAnswersAdminSerializer)
     def post(self, request):
         question_data = request.data
+        
         serializer = CreateQuestionAndAnswersAdminSerializer(data = question_data)
         if serializer.is_valid():
+            
             try:
+                
                 with transaction.atomic():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)
-            except:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
