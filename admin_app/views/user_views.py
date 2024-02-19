@@ -234,9 +234,10 @@ class CreateUserFromCSVAPIView(APIView):
             return Response("Organization not found", status=status.HTTP_404_NOT_FOUND)
         try:
             file_obj = request.data['filename']
-            df = pd.read_excel(file_obj, sheet_name="ПОЛЬЗОВАТЕЛИ")
-        except:
-            return Response("Something is wrong with excel file structure. For example check file name or sheet name for users or smt",
+            df = pd.read_excel(file_obj)
+            # "Something is wrong with excel file structure. For example check file name or sheet name for users or smt"
+        except Exception as e:
+            return Response(str(e),
                             status=status.HTTP_400_BAD_REQUEST)
         try:
             with transaction.atomic():
@@ -248,7 +249,7 @@ class CreateUserFromCSVAPIView(APIView):
                         first_name = df['Имя'][i],
                         last_name = df['Фамилия'][i],
                         email = df['Еmail / Логин'][i],
-                        password = df['Пароль'][i],
+                        password = str(df['Пароль'][i]),
                         father_name = df['Отчество'][i],
                         start_date = start_formatted_date_str,
                         end_date = end_formatted_date_str,
