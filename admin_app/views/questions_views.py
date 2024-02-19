@@ -1,14 +1,15 @@
-
+import pandas as pd
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser
 
 from drf_yasg.utils import swagger_auto_schema 
 from drf_yasg import openapi
 from django.db import transaction
 from django.db.models import Q
 
-from my_app.models import Question
+from my_app.models import Question, Answer
 from users.models import Direction
 
 from admin_app.permissions import IsAdminOrSuperUser
@@ -122,56 +123,61 @@ class ChangeQuestionAdminAPIView(APIView):
 
 
 
-# class CreateQusetionFromCSVAPIView(APIView):
-#     parser_classes = (MultiPartParser,)
-#     # permission_classes = [IsAdminOrSuperUser]
+class CreateQusetionFromCSVAPIView(APIView):
+    parser_classes = (MultiPartParser,)
+    # permission_classes = [IsAdminOrSuperUser]
 
-#     @swagger_auto_schema(manual_parameters=[
-#         openapi.Parameter('filename', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True)
-#     ])
-#     def post(self, request, format=None):
+    @swagger_auto_schema(manual_parameters=[
+        openapi.Parameter('filename', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True)
+    ])
+    def post(self, request, format=None):
         
-#         try:
-#             file_obj = request.data['filename']
-#             df = pd.read_excel(file_obj)
+        try:
+            file_obj = request.data['filename']
+            df = pd.read_excel(file_obj)
 
-#             df_data_question = df['Текст вопроса']
-#             df_data_answer = df['Вариант ответа']
-#             df_data_iscorrect = df['Верно/Неверно']
-#             df_data_correct_answer_description = df['Примечание']
-#             # df_function_data = df['Трудовая функция']
-#             # df_question_code = df['Код вопроса']
-#             question_type_count=0
-#         except:
-#             return Response("Excel data is wrong", status=status.HTTP_400_BAD_REQUEST)
-#         try:
-#             # with transaction.atomic():
-#             for i in range(2422,len(df_data_answer)):
-#                 print(df_data_question[i])
-                
-#                 questions = Question.objects.filter(question=df_data_question[i])
-#                 print(i)
-#                 if not questions.exists():
-#                     question_type_count=0
-#                     question = Question.objects.create(question=df_data_question[i],
-#                                                        correct_answer_description = df_data_correct_answer_description[i])
-#                                                     #    question_code=df_question_code[i],
-#                                                     #    work_function = df_function_data[i])
-#                     answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
-#                     if bool(int(df_data_iscorrect[i])):
-#                         question_type_count+=1
-#                 else:
-#                     if bool(int(df_data_iscorrect[i])):
-#                         question_type_count+=1
-#                     question=questions.get()
-#                     answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
-#                     if question_type_count>1:
-#                         question.note="multiple"
-#                         question.save()
+            df_data_question = df['Текст вопроса']
+            df_data_answer = df['Вариант ответа']
+            df_data_iscorrect = df['Верно/Неверно']
+            df_data_correct_answer_description = df['Примечание']
+            # df_function_data = df['Трудовая функция']
+            last_question = Question.objects.last()
+            if last_question is not None: last_question_code = last_question.question_code
+            else:last_question_code = 0
+            question_type_count=0
+            
+        except:
+            return Response("Excel data is wrong", status=status.HTTP_400_BAD_REQUEST)
+        try:
+            with transaction.atomic():
+                for i in range(len(df_data_answer)):
+                    last_question_code+=1
+                    print(df_data_question[i])
+                    
+                    questions = Question.objects.filter(question=df_data_question[i])
+                    print(i)
+                    if not questions.exists():
+                        question_type_count=0
+                        question = Question.objects.create(
+                                                            question=df_data_question[i],
+                                                            correct_answer_description = df_data_correct_answer_description[i],
+                                                            question_code=last_question_code)
+                                                        #    work_function = df_function_data[i])
+                        answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                        if bool(int(df_data_iscorrect[i])):
+                            question_type_count+=1
+                    else:
+                        if bool(int(df_data_iscorrect[i])):
+                            question_type_count+=1
+                        question=questions.get()
+                        answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                        if question_type_count>1:
+                            question.note="multiple"
+                            question.save()
 
-#         except:
-#             return Response("Data in excel is wrong", status=status.HTTP_400_BAD_REQUEST)
-#         return Response(status=status.HTTP_200_OK)
+        except:
+            return Response("Data in excel is wrong", status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_200_OK)
     
 
 
