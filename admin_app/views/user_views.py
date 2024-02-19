@@ -262,7 +262,7 @@ class CreateUserFromCSVAPIView(APIView):
     
 
 class ManagerListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True) | Q(is_admin=True))
+    queryset = User.objects.all()
     serializer_class = CreateManagerOrSuperUserSerializer
     # permission_classes = [IsSuperUser]
     pagination_class = ManagerPagination 
@@ -273,6 +273,11 @@ class ManagerListCreateView(generics.ListCreateAPIView):
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
                 enum=[choice[0] for choice in User.RoleChoices.choices[1:]]
+            ),
+            openapi.Parameter(
+                'search',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
             )
         ],responses={200: CreateManagerOrSuperUserSerializer},
     )
@@ -284,15 +289,21 @@ class ManagerListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         filters = Q()
-        # filters |= Q(is_staff=True)
-        # filters |= Q(is_superuser=True)
+        filters |= Q(is_staff=True)
+        filters |= Q(is_superuser=True)
+        filters |= Q(is_admin=True)
+        filters_name = Q()
         role_param = self.request.query_params.get('role')
+        search_param = self.request.query_params.get('search')
         if role_param:
             filters &=Q(role = role_param)
-            queryset = User.objects.filter(filters)
-            return queryset
-        
-        return super().get_queryset()
+
+        if search_param:
+            filters_name |= Q(first_name__icontains=search_param)
+            filters_name |= Q(last_name__icontains=search_param)
+            filters_name |= Q(father_name__icontains=search_param)
+        queryset = User.objects.filter(filters).filter(filters_name)
+        return queryset
 
 class ManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
