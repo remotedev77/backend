@@ -32,6 +32,7 @@ class GetQuestionAPIView(APIView):
     def get(self, request):
         user = request.user
 
+
         if 'category_name' in self.request.query_params:
             category_name = self.request.query_params.get('category_name')
             if category_name == 'Не решал':

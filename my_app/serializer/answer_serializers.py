@@ -4,7 +4,7 @@ from my_app.models import Answer
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ('id','answer', 'is_correct')
+        fields = ('id','answer')
 
 class AnswerSimulyatorSerializer(serializers.ModelSerializer):
     class Meta:
