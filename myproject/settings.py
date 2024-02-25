@@ -54,12 +54,12 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework_simplejwt',
     'django_extensions',
-    # "debug_toolbar",
+    "debug_toolbar",
     'drf_yasg',
 ]
 
 MIDDLEWARE = [
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -216,11 +216,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# INTERNAL_IPS = [
+INTERNAL_IPS = [
 
-#     "127.0.0.1",
+    "127.0.0.1",
 
-# ]
+]
 
 AUTH_USER_MODEL = 'users.User'
 from datetime import timedelta

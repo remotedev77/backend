@@ -57,7 +57,7 @@ class Statistic(models.Model):
         TAMBILIREM = 'Знаю'
         
         
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics')
     question_id = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='statistics')
     category = models.CharField(max_length=50,choices=CategoryChoices.choices, default=CategoryChoices.BILMIREM)
     correct_answers = models.FloatField(default=0)
