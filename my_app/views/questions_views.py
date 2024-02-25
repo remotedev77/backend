@@ -51,7 +51,7 @@ class GetQuestionAPIView(APIView):
 
                 if category_questions.exists():
                     questions = Question.objects.prefetch_related('answers').filter(id__in=category_questions)
-                    ser = QuestionSerializer(questions, many=True)
+                    ser = QuestionCategorySerializer(questions, many=True)
                     return Response(ser.data, status=status.HTTP_200_OK)
                 return Response([], status=status.HTTP_404_NOT_FOUND)
         random_instance_or_none = Question.objects.raw('''

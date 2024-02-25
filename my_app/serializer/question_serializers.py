@@ -1,10 +1,18 @@
 from rest_framework import serializers
 from my_app.models import Question, Statistic
-from my_app.serializer.answer_serializers import AnswerSerializer
+from my_app.serializer.answer_serializers import AnswerSerializer, AnswerCategorySerializer
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True)
+    class Meta:
+        model = Question
+        fields = ('id','question','image', 'answers',
+                  'question_code', 'work_function','note')
+
+
+class QuestionCategorySerializer(serializers.ModelSerializer):
+    answers = AnswerCategorySerializer(many=True)
     class Meta:
         model = Question
         fields = ('id','question','image', 'answers',
