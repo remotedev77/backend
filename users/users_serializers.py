@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from users.models import Company, User
+from my_app.models import Statistic
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,7 +61,7 @@ class UserGetSerializer(serializers.ModelSerializer):
     def get_final_test(self, obj):
 
         if User.PlanChoices.basic == obj.plan:
-            if obj.statistics.count() >= 150:
+            if obj.statistics.filter(category=Statistic.CategoryChoices.TAMBILIREM).count() >= 150:
                 obj.final_test = True
                 obj.save()
                 return obj.final_test
@@ -74,7 +75,7 @@ class UserGetSerializer(serializers.ModelSerializer):
             if obj.final_test == True:
                 return obj.final_test
             
-            if obj.statistics.count() >= 150:
+            if obj.statistics.filter(category=Statistic.CategoryChoices.TAMBILIREM).count() >= 150:
                 obj.final_test = True
                 obj.save()
                 return obj.final_test

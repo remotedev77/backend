@@ -1,11 +1,12 @@
 from rest_framework import permissions
+from my_app.models import Statistic
 from users.models import  User
 
 
 class CheckFinalTestPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if User.PlanChoices.basic == request.user.plan:
-            if request.user.statistics.count() >= 150:
+            if request.user.statistics.filter(category=Statistic.CategoryChoices.TAMBILIREM).count() >= 150:
                 request.user.final_test = True
                 request.user.save()
                 return request.user.final_test
@@ -19,7 +20,7 @@ class CheckFinalTestPermission(permissions.BasePermission):
             if request.user.final_test == True:
                 return request.user.final_test
             
-            if request.user.statistics.count() >= 150:
+            if request.user.statistics.filter(category=Statistic.CategoryChoices.TAMBILIREM).count() >= 150:
                 request.user.final_test = True
                 request.user.save()
                 return request.user.final_test
