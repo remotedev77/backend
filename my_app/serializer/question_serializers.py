@@ -13,9 +13,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class QuestionCategorySerializer(serializers.ModelSerializer):
     answers = AnswerCategorySerializer(many=True)
+    description = serializers.CharField(source='correct_answer_description')
     class Meta:
         model = Question
-        fields = ('id','question','image', 'answers', 'correct_answer_description',
+        fields = ('id','question','image', 'answers', 'description',
                   'question_code', 'work_function','note')
 
 class QuestionExamSerializer(serializers.ModelSerializer):
