@@ -68,7 +68,7 @@ class Statistic(models.Model):
     
     def save(self, *args, **kwargs):
         persentail = (self.correct_answers/(self.correct_answers+self.incorrect_answers))*100
-        
+        print(persentail)
         if persentail < 50:
             self.category = Statistic.CategoryChoices.BILMIREM
         elif 50 <=persentail <90:

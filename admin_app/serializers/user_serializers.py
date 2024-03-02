@@ -1,17 +1,25 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+from my_app.models import Statistic
 # Create your models here.
 User = get_user_model()
 
 class ChangeUserAdminSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(required=False)
+
     class Meta:
         model = User
         exclude = ['date_joined', 'last_login','groups', 'user_permissions', 
-                   'is_admin', 'is_active']
+                   'is_admin', 'is_active', 'password']
     def update(self, instance, validated_data):
-        
+        if instance.plan == User.PlanChoices.basic and validated_data.get("plan") == User.PlanChoices.pro:
+            statistics = Statistic.objects.filter(user_id = instance.id)[150::]
+            for statistic in statistics:
+                statistic.correct_answers = 1
+                statistic.incorrect_answers = 1
+                statistic.category = Statistic.CategoryChoices.SEHVLEREDIREM
+            Statistic.objects.bulk_update(statistics, ['correct_answers', 'incorrect_answers', 'category'])
+            
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         

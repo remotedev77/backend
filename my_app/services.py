@@ -8,7 +8,10 @@ User = get_user_model()
 class UpdateOrCreateStatistic:
     @classmethod
     def create_or_update(cls, django_model: Type[models.Model], question_id: int, correct:bool = True, user=None):
-        # user = User.objects.filter(username="tami").first() #change to auth user
+
+        if User.PlanChoices.pro == user.plan and user.statistics.filter(category=django_model.CategoryChoices.TAMBILIREM).count() >= 150:
+            return None
+
         questionID = Question.objects.filter(id=question_id).first()
         statistic_question = django_model.objects.select_related("question_id").filter(Q(question_id = questionID) & Q(user_id = user)).first()
         
