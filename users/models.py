@@ -28,8 +28,8 @@ class User(AbstractUser):
         admin = 'admin'
 
     class PlanChoices(models.TextChoices):
-        basic = "базовым"
-        pro = "разрешенным"
+        basic = "базовый"
+        pro = "расширенный"
 
     username = None
     first_name = models.CharField(max_length=100, blank=True, null=True)
