@@ -9,5 +9,6 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('register/', users_views.RegisterAPIView.as_view(), name="sign_up"),
-    path('user/', users_views.GetUserAPIView.as_view(), name = 'get_user')
+    path('user/', users_views.GetUserAPIView.as_view(), name = 'get_user'),
+    path('user-statistics', users_views.UserStatisticQuestionAPIView.as_view())
 ]

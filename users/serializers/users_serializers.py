@@ -1,23 +1,41 @@
 from rest_framework import serializers
 from users.models import Company, User
+from users.serializers.statistic_serializers import *
 from my_app.models import Statistic
 
-class UserCreateSerializer(serializers.ModelSerializer):
+# class UserCreateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ["email", "first_name", "password"]
+#         extra_kwargs = {
+            
+#             "password": {"write_only": True},
+#         }
+
+#     def create(self, validated_data):
+#         user = User.objects.create(email=validated_data['email'],
+#                                        name=validated_data['name']
+#                                          )
+#         user.set_password(validated_data['password'])
+#         user.save()
+#         return user
+
+
+
+
+class UserStatisticQuestionSerializer(serializers.ModelSerializer):
+    statistics = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["email", "first_name", "password"]
-        extra_kwargs = {
-            
-            "password": {"write_only": True},
-        }
 
-    def create(self, validated_data):
-        user = User.objects.create(email=validated_data['email'],
-                                       name=validated_data['name']
-                                         )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+        fields = ['phone', 'end_date', 'statistics']
+
+    def get_statistics(self, obj):
+        statistics = Statistic.objects.select_related('question_id').filter(user_id=obj.id, 
+                                              category=Statistic.CategoryChoices.TAMBILIREM
+                                              ).order_by('-id')[:150]
+        return StatisticSerializer(statistics, many=True).data
 
 
 

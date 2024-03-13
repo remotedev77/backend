@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
-from users.users_serializers import UserCreateSerializer, UserGetSerializer
+from drf_yasg import openapi
+from users.serializers.users_serializers import UserCreateSerializer, UserGetSerializer, UserStatisticQuestionSerializer
 from users.models import User
 
 class RegisterAPIView(APIView):
@@ -23,3 +24,36 @@ class GetUserAPIView(APIView):
 
         user_serializer_data = UserGetSerializer(user)
         return Response(user_serializer_data.data)
+
+
+class UserStatisticQuestionAPIView(APIView):
+    @swagger_auto_schema(
+            manual_parameters=[
+                
+                openapi.Parameter(
+                    'first_date',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.FORMAT_DATE,
+                ),
+                openapi.Parameter(
+                    'second_date',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.FORMAT_DATE,
+                )
+            ],responses={200: UserStatisticQuestionSerializer},
+    )
+    def get(self, request, *args, **kwargs):
+        # Extracting first_date and second_date from query parameters
+        first_date = request.query_params.get('first_date')
+        second_date = request.query_params.get('second_date')
+        
+        # Ensure both dates are provided
+        if not first_date or not second_date:
+            return Response({"error": "Both first_date and second_date are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Filter users whose end_date is between first_date and second_date
+        users = User.objects.filter(end_date__range=[first_date, second_date])
+        
+        # Serialize and return the filtered users
+        serializer = UserStatisticQuestionSerializer(users, many=True)
+        return Response(serializer.data)

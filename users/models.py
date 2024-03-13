@@ -50,6 +50,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=20,choices=RoleChoices.choices, default=RoleChoices.user, blank=True, null=True)
     direction_type = models.ForeignKey(Direction, on_delete=models.CASCADE, blank=True, null=True)
     plan = models.CharField(max_length=20, choices=PlanChoices.choices, default=PlanChoices.basic, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
