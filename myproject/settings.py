@@ -112,7 +112,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://edu-simulator.ru',
     'http://0.0.0.0:8000',
     'http://127.0.0.1:8000',
-    'https://api.edu-simulator.ru'
+    'https://api.edu-simulator.ru',
+    'https://backend-production-a25a.up.railway.app'
 ]
 
 
