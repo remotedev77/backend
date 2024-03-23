@@ -127,7 +127,7 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     "default": dj_database_url.config(
-        default='mysql://root:A-E12ABDfg3faDAe-hhB624B--3EeA2G@roundhouse.proxy.rlwy.net:57146/railway',
+        default='mysql://root:AZZxPItVGJNlxEodhIVubSRtUfPIRedT@roundhouse.proxy.rlwy.net:49644/railway',
         conn_max_age=1800
     )
 }

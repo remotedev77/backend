@@ -60,7 +60,7 @@ def check_exam(request_list: list, question_data: OrderedDict, user):
                 response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count
-    if correct_answers_count/50*100 > 74:
+    if correct_answers_count/50*100 > 72:
         check_count['success'] = True
         user.main_test_count +=1
         user.save()

@@ -2,6 +2,9 @@ from rest_framework import permissions
 from my_app.models import Statistic
 from users.models import  User
 
+class QuestionCategoryAndTestPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.statistics.count() >= 200
 
 class CheckFinalTestPermission(permissions.BasePermission):
     def has_permission(self, request, view):

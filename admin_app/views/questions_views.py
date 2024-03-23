@@ -149,32 +149,31 @@ class CreateQusetionFromCSVAPIView(APIView):
         except:
             return Response("Excel data is wrong", status=status.HTTP_400_BAD_REQUEST)
         try:
-            with transaction.atomic():
-                for i in range(len(df_data_answer)):
-                    last_question_code+=1
-                    print(df_data_question[i])
-                    
-                    questions = Question.objects.filter(question=df_data_question[i])
-                    print(i)
-                    if not questions.exists():
-                        question_type_count=0
-                        question = Question.objects.create(
-                                                            question=df_data_question[i],
-                                                            correct_answer_description = df_data_correct_answer_description[i],
-                                                            question_code=last_question_code)
-                                                        #    work_function = df_function_data[i])
-                        answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
-                        if bool(int(df_data_iscorrect[i])):
-                            question_type_count+=1
-                    else:
-                        if bool(int(df_data_iscorrect[i])):
-                            question_type_count+=1
-                        question=questions.get()
-                        answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
-                        if question_type_count>1:
-                            question.note="multiple"
-                            question.save()
-
+            # with transaction.atomic():
+            for i in range(len(df_data_answer)):
+                last_question_code+=1
+                print(df_data_question[i])
+                
+                questions = Question.objects.filter(question=df_data_question[i])
+                print(i)
+                if not questions.exists():
+                    question_type_count=0
+                    question = Question.objects.create(
+                                                        question=df_data_question[i],
+                                                        correct_answer_description = df_data_correct_answer_description[i],
+                                                        question_code=last_question_code)
+                                                    #    work_function = df_function_data[i])
+                    answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                    if bool(int(df_data_iscorrect[i])):
+                        question_type_count+=1
+                else:
+                    if bool(int(df_data_iscorrect[i])):
+                        question_type_count+=1
+                    question=questions.get()
+                    answer = Answer.objects.create(answer=df_data_answer[i], question_id=question, is_correct=bool(int(df_data_iscorrect[i])))
+                    if question_type_count>1:
+                        question.note="multiple"
+                        question.save()
         except:
             return Response("Data in excel is wrong", status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)

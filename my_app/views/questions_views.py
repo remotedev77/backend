@@ -1,8 +1,5 @@
-import random, json
-from typing import List, Dict
+
 from django.db.models import Prefetch, Q
-from django.db import connection
-from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -12,12 +9,11 @@ from drf_yasg import openapi
 # from admin_app.pagination import QuestionPagination
 from my_app.models import Question, Answer, Statistic, User
 from my_app.serializer.question_serializers import *
-from my_app.permissions.final_test_permission import *
 from my_app.utils import check_exam, check_marafon, check_final_test, check_by_category
+from my_app.permissions.question_test_permission import QuestionCategoryAndTestPermission, CheckFinalTestPermission
 
-
-class GetQuestionAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+class GetQuestionByCategoryAPIView(APIView):
+    permission_classes = [IsAuthenticated, QuestionCategoryAndTestPermission]
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
@@ -31,8 +27,6 @@ class GetQuestionAPIView(APIView):
     )
     def get(self, request):
         user = request.user
-
-
         if 'category_name' in self.request.query_params:
             category_name = self.request.query_params.get('category_name')
             if category_name == 'Не решал':
@@ -54,6 +48,25 @@ class GetQuestionAPIView(APIView):
                     ser = QuestionCategorySerializer(questions, many=True)
                     return Response(ser.data, status=status.HTTP_200_OK)
                 return Response([], status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+class GetQuestionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'category_name',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='Question category',
+            )
+        ],
+        # responses={200: GetAllQuestionAdminSerializer},
+    )
+    def get(self, request):
+        user = request.user
         random_instance_or_none = Question.objects.raw('''
             SELECT * FROM {0}
             WHERE id >= (SELECT FLOOR(RAND() * (SELECT MAX(id) FROM {0}))) and direction_type_id = {1}
@@ -98,7 +111,7 @@ class CheckMarafonQuestion(APIView):
 
 
 class CheckFinalTestAPIView(APIView):
-    permission_classes = [IsAuthenticated, CheckFinalTestPermission]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         request_list = request.data
         user = request.user
