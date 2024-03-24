@@ -4,55 +4,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from drf_yasg.utils import swagger_auto_schema 
 from drf_yasg import openapi
 # from admin_app.pagination import QuestionPagination
-from my_app.models import Question, Answer, Statistic, User
+from my_app.models import Question, Answer, Statistic, FinalyTestQuestionForPro
 from my_app.serializer.question_serializers import *
+from my_app.services.finaly_test_response_services import FinalyTestResponseServices
 from my_app.utils import check_exam, check_marafon, check_final_test, check_by_category
 from my_app.permissions.question_test_permission import QuestionCategoryAndTestPermission, CheckFinalTestPermission
 
-# class GetQuestionByCategoryAPIView(APIView):
-#     permission_classes = [IsAuthenticated, QuestionCategoryAndTestPermission]
-#     @swagger_auto_schema(
-#         manual_parameters=[
-#             openapi.Parameter(
-#                 'category_name',
-#                 in_=openapi.IN_QUERY,
-#                 type=openapi.TYPE_STRING,
-#                 description='Question category',
-#             )
-#         ],
-#         # responses={200: GetAllQuestionAdminSerializer},
-#     )
-#     def get(self, request):
-#         user = request.user
-#         if 'category_name' in self.request.query_params:
-#             category_name = self.request.query_params.get('category_name')
-#             print(category_name)
-#             if category_name == 'Не решал':
-#                 print("hs")
 
-#                 category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(user_id=user).values_list("question_id")
-#                 if category_questions.exists():
-#                     questions = Question.objects.prefetch_related('answers').exclude(id__in=category_questions)
-#                     ser = QuestionSerializer(questions, many=True)
-#                     return Response(ser.data, status=status.HTTP_200_OK)
-#                 else:
-#                     questions = Question.objects.prefetch_related('answers').all()
-#                     ser = QuestionSerializer(questions, many=True)
-#                     return Response(ser.data, status=status.HTTP_200_OK)
-#             else:
-#                 category_questions = Statistic.objects.select_related("question_id").prefetch_related('question_id__answers').filter(Q(user_id=user) & Q(category=category_name)).values_list("question_id")
-
-#                 if category_questions.exists():
-#                     questions = Question.objects.prefetch_related('answers').filter(id__in=category_questions)
-#                     ser = QuestionCategorySerializer(questions, many=True)
-#                     return Response(ser.data, status=status.HTTP_200_OK)
-#                 return Response([], status=status.HTTP_404_NOT_FOUND)
-
-
-
+class GetFinalyTestQuestionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        response = FinalyTestResponseServices.reponse_test_questions(user=user)
+        if response ==None:
+            raise PermissionDenied
+        return Response(response)
+        
 
 class GetQuestionAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -90,6 +61,8 @@ class GetQuestionAPIView(APIView):
                     ser = QuestionCategorySerializer(questions, many=True)
                     return Response(ser.data, status=status.HTTP_200_OK)
                 return Response([], status=status.HTTP_404_NOT_FOUND)
+        
+        
         random_instance_or_none = Question.objects.raw('''
             SELECT * FROM {0}
             WHERE id >= (SELECT FLOOR(RAND() * (SELECT MAX(id) FROM {0}))) and direction_type_id = {1}

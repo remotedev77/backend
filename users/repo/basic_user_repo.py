@@ -1,6 +1,6 @@
-from my_app.models import Question, Statistic
-from users.models import User
+
+from users.repo.base_repo import BaseRepo
 
 
-class BasicUserRepo:
+class BasicUserRepo(BaseRepo):
     pass

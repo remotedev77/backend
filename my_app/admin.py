@@ -1,5 +1,5 @@
 from django.contrib import admin
-from my_app.models import Answer, Question, Exam, Statistic
+from my_app.models import Answer, Question, Exam, Statistic, FinalyTestQuestionForPro
 
 # Register your models here.
 
@@ -32,7 +32,7 @@ class AnswerAdmin(admin.ModelAdmin):
     search_fields = ['answer']
 
 
-    
+admin.site.register(FinalyTestQuestionForPro)
 
 # admin.site.register(Question,QuestionAdmin)
 # admin.site.register(Answer,AnswerAdmin) 

@@ -76,3 +76,8 @@ class Statistic(models.Model):
         else:
             self.category = Statistic.CategoryChoices.TAMBILIREM
         return super().save(*args, **kwargs)
+    
+
+class FinalyTestQuestionForPro(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='finalytestquestion')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='finalytestquestion')

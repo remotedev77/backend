@@ -3,6 +3,7 @@ from typing import Dict
 
 from my_app.services.up_or_crt_statistic_services import UpdateOrCreateStatistic
 from my_app.models import Statistic
+from users.repo.pro_user_repo import ProUserRepo
 # from my_app.utils import create_answers_structure
 
 
@@ -59,10 +60,11 @@ def check_final_test(request_list: list, question_data: OrderedDict, user):
                 response_data.append(data)
         check_count['correct_answers_count'] = correct_answers_count
         check_count['incorrect_answers_count'] = incorrect_answers_count
-    if correct_answers_count/50*100 > 74:
+    if correct_answers_count/50*100 > 72:
         check_count['success'] = True
         user.final_test = True
         user.save()
+        ProUserRepo.change_questions_categorys(user=user)
     response_data.append(check_count)
     
     return response_data

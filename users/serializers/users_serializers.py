@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from users.enums import ClosedTestEnum
 from users.models import Company, User
 from users.serializers.statistic_serializers import *
 from my_app.models import Statistic
+from users.services.user_access_limited_services import ProUserLimitedServices
 
 # class UserCreateSerializer(serializers.ModelSerializer):
 #     class Meta:
@@ -70,14 +72,18 @@ class CompanySerializer(serializers.ModelSerializer):
 class UserGetSerializer(serializers.ModelSerializer):
     organization = serializers.SerializerMethodField()
     # final_test = serializers.SerializerMethodField()
-    user_limited = serializers.SerializerMethodField()
+    closed_tests = serializers.SerializerMethodField()
     class Meta:
         model = User
         exclude = ["id","is_admin", "is_active", "is_staff",
                    "is_superuser", "password", "last_login",
                    "groups", "user_permissions"]
-    def get_user_limited(self, obj):
-        pass
+    def get_closed_tests(self, obj):
+        if obj.plan == User.PlanChoices.pro:
+            response = ProUserLimitedServices.user_limited(user=obj)
+            return response
+        
+        
     # def get_final_test(self, obj):
 
     #     if User.PlanChoices.basic == obj.plan:
