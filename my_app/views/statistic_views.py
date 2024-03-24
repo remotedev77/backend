@@ -2,13 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from django.db.models import F, Case, When, Value, CharField, FloatField, ExpressionWrapper, Count
-from django.db.models.functions import Cast, Round
+from django.db.models import Value, Count
+from django.db.models.functions import Round
 from my_app.models import Statistic, Question
-from my_app.services import UpdateOrCreateStatistic
 
 
-class GetUserStatistic(APIView):
+class GetUserStatisticAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
@@ -35,5 +34,5 @@ class GetUserStatistic(APIView):
         data_count['category_count'] = category_no_show_count
         category_counts = list(category_counts)
         category_counts.append(data_count)
-        return Response({"statistic":statistic, "category_counts": category_counts})
+        return Response({"statistic":statistic, "category_counts": category_counts}, status=status.HTTP_200_OK)
     

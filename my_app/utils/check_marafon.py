@@ -1,8 +1,7 @@
 from collections import OrderedDict
-from pprint import pprint
 from typing import Dict
 
-from my_app.services import UpdateOrCreateStatistic
+from my_app.services.up_or_crt_statistic_services import UpdateOrCreateStatistic
 from my_app.models import Statistic
 from my_app.utils.create_answers_structure import structured_answers_response
 

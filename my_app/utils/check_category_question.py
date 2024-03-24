@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Dict
 
-from my_app.services import UpdateOrCreateStatistic
+from my_app.services.up_or_crt_statistic_services import UpdateOrCreateStatistic
 from my_app.models import Statistic
 
 
