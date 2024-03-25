@@ -37,6 +37,12 @@ DEBUG=True
 ALLOWED_HOSTS = ["*"]
 # Application definition
 
+AUTHENTICATION_BACKENDS = [
+    'users.authenticate.PhoneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',

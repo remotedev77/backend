@@ -24,7 +24,13 @@ from users.repo.pro_user_repo import ProUserRepo
 #         user.save()
 #         return user
 
+class LoginUserSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
+class LoginUserResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
 
 
 class UserStatisticQuestionSerializer(serializers.ModelSerializer):

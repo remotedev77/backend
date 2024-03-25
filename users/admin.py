@@ -28,14 +28,14 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'first_name', 'last_name', 'father_name', 'final_test','start_date', 'end_date', 'access','plan',
+    list_display = ('email', 'first_name', 'last_name', 'father_name', 'final_test','start_date', 'end_date', 'access','plan','phone_number',
                     'organization', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count', 'direction_type')
     list_filter = ('is_admin',)
     # search_fields = []
     # autocomplete_fields = ["organization"]
     fieldsets = (
         (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test','role','direction_type',
-                    'organization', 'password', 'main_test_count','start_date', 'end_date', 'access', 'plan')}),
+                    'organization', 'password', 'main_test_count','start_date', 'end_date', 'access', 'plan', 'phone_number')}),
         
         ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser','groups','is_active')}),
     )
@@ -46,7 +46,7 @@ class UserAdmin(BaseUserAdmin):
             'classes': ('wide',),
             'fields': ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
                     'organization', 'is_admin', 'is_staff','groups','is_superuser', 'is_active', 'main_test_count',
-                    'start_date', 'end_date', 'access', 'role', 'plan'),
+                    'start_date', 'end_date', 'access', 'role', 'plan', 'phone_number'),
         }),
     )
     search_fields = ('email',)

@@ -1,11 +1,17 @@
-from rest_framework import status
+
+from django.contrib.auth import authenticate
+from rest_framework import status, serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from users.serializers.users_serializers import UserCreateSerializer, UserGetSerializer, UserStatisticQuestionSerializer
+from users.serializers.users_serializers import UserCreateSerializer, UserGetSerializer, UserStatisticQuestionSerializer,\
+LoginUserSerializer, LoginUserResponseSerializer
 from users.models import User
+from users.services.send_sms_services import SendSmsServices
 
 class RegisterAPIView(APIView):
     @swagger_auto_schema(responses={200: UserCreateSerializer}, request_body=UserCreateSerializer)
@@ -15,6 +21,35 @@ class RegisterAPIView(APIView):
         serializer.save()
         return Response(serializer.data)
     
+
+
+class LoginUserApi(APIView):
+    @swagger_auto_schema(responses={200: LoginUserResponseSerializer}, request_body=LoginUserSerializer)
+    def post(self, request):
+        serializer = LoginUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        phone_number=request.data['phone_number']
+        password=data['password']
+        user = authenticate(phone_number=phone_number, password=password)
+        if not user:
+            raise serializers.ValidationError({'detail':'Incorrect email, phone, or password'})
+        refresh = RefreshToken.for_user(user)
+        # sms_services = SendSmsServices("das",phone_number=phone_number)
+        # service_response = sms_services.sms_send()
+        # if service_response:
+        return Response(
+            {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            }
+            , status=status.HTTP_200_OK
+            )
+        # else:
+        #     raise ValidationError("Service response is not valid.")
+
+            
+
 
 class GetUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
