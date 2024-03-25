@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from users.permissions.user_verify_permission import UserVerifyPermission
 from users.serializers.users_serializers import UserCreateSerializer, UserGetSerializer, UserStatisticQuestionSerializer,\
 LoginUserSerializer, LoginUserResponseSerializer
 from users.models import User
@@ -122,7 +123,7 @@ class GetSmsListsAPIView(APIView):
 
 
 class GetUserAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     
     def get(self, request):
         user = request.user

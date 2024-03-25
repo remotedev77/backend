@@ -13,10 +13,11 @@ from my_app.serializer.question_serializers import *
 from my_app.services.finaly_test_response_services import FinalyTestResponseServices
 from my_app.utils import check_exam, check_marafon, check_final_test, check_by_category
 from my_app.permissions.question_test_permission import QuestionCategoryAndTestPermission, CheckFinalTestPermission
+from users.permissions.user_verify_permission import UserVerifyPermission
 
 
 class GetFinalyTestQuestionAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     def get(self, request):
         user = request.user
         response = FinalyTestResponseServices.reponse_test_questions(user=user)
@@ -26,7 +27,7 @@ class GetFinalyTestQuestionAPIView(APIView):
         
 
 class GetQuestionAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
@@ -74,7 +75,7 @@ class GetQuestionAPIView(APIView):
 
 
 class CheckExamAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     def post(self, request):
         request_list = request.data
         user = request.user
@@ -90,7 +91,7 @@ class CheckExamAPIView(APIView):
 
 
 class CheckMarafonQuestion(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     def post(self, request):
         request_list = request.data
         user = request.user
@@ -107,7 +108,7 @@ class CheckMarafonQuestion(APIView):
 
 
 class CheckFinalTestAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     def post(self, request):
         request_list = request.data
         user = request.user
@@ -121,7 +122,7 @@ class CheckFinalTestAPIView(APIView):
 
 
 class CheckCategoryQuestionAPIView(APIView): #change this api
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserVerifyPermission]
     def post(self, request):
         request_list = request.data
         user = request.user
