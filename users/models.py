@@ -41,6 +41,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False, blank=True, null=True)
     father_name = models.CharField(max_length=50, blank=True, null=True)
     organization = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
@@ -71,6 +72,26 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
     
+
+class SmsStatus(models.Model):
+    DELIVERY_STATUS_CHOICES = {
+        0: "в очереди",
+        1: "доставлено",
+        2: "не доставлено",
+        3: "передано",
+        4: "ожидание статуса сообщения",
+        6: "сообщение отклонено",
+        8: "на модерации"
+    }
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sms_status')
+    sms_id = models.IntegerField()
+    status = models.IntegerField(choices=DELIVERY_STATUS_CHOICES.items(), default=0)
+    verify_code = models.IntegerField(blank=True,null=True)
+
+    def __str__(self) -> str:
+        return self.user.phone_number
+    
+
 
 class AdminTable(User):
     objects = AdminManager()

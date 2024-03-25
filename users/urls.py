@@ -11,5 +11,9 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('register/', users_views.RegisterAPIView.as_view(), name="sign_up"),
     path('user/', users_views.GetUserAPIView.as_view(), name = 'get_user'),
-    path('user-questions/', users_views.UserStatisticQuestionAPIView.as_view())
+    path('user-questions/', users_views.UserStatisticQuestionAPIView.as_view()),
+    path('verify-otp/', users_views.CheckVerifyCodeAPIView.as_view()),
+    path('sms-status/', users_views.GetSmsStatusAPIView.as_view()),
+    path('sms-lists/', users_views.GetSmsListsAPIView.as_view()),
+    path('sms--status-lists/', users_views.SmsStatusListAPIView.as_view())
 ]

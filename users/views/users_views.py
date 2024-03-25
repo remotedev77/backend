@@ -35,20 +35,86 @@ class LoginUserApi(APIView):
         if not user:
             raise serializers.ValidationError({'detail':'Incorrect email, phone, or password'})
         refresh = RefreshToken.for_user(user)
-        # sms_services = SendSmsServices("das",phone_number=phone_number)
-        # service_response = sms_services.sms_send()
-        # if service_response:
+        response_obj = {
+                        'access': str(refresh.access_token),
+                        'refresh': str(refresh),
+                        'verify_code': None,
+                        'is_verified': True,
+                        'sms_status':None
+        }
+        if not user.is_verified:
+            sms_services = SendSmsServices(phone_number=phone_number)
+            service_response = sms_services.sms_send()
+            if service_response['response_status'] and service_response['sms_status'] != False:
+                response_obj['verify_code'] = service_response['verify_code']
+                response_obj['sms_status'] = service_response['sms_status']
+                sms_status = SmsStatus.objects.create(user = user, 
+                                         sms_id=service_response['sms_id'], 
+                                         status=service_response['sms_status_number'],
+                                         verify_code = response_obj['verify_code'])
+                sms_status.save()
+
+                return Response(
+                    response_obj
+                    ,status=status.HTTP_200_OK
+                    )
+            else:
+                raise ValidationError("Service response is not valid.")
         return Response(
-            {
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
-            }
+            response_obj
             , status=status.HTTP_200_OK
             )
-        # else:
-        #     raise ValidationError("Service response is not valid.")
 
-            
+
+class CheckVerifyCodeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(
+            manual_parameters=[
+                openapi.Parameter(
+                    'verify_code',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.FORMAT_INT64,
+                )
+            ],responses={},
+    )
+    def get(self, request):
+        user = request.user
+        sms_stst_obj = SmsStatus.objects.filter(user=user).first()
+        if sms_stst_obj is not None:
+            verify_code = request.query_params.get('verify_code')
+            if int(verify_code) == int(sms_stst_obj.verify_code):
+                user.is_verified = True
+                user.save()
+                return Response("success", status=status.HTTP_202_ACCEPTED)
+            return Response("fail", status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response("user not send sms", status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetSmsStatusAPIView(APIView):
+    @swagger_auto_schema(
+            manual_parameters=[
+                
+                openapi.Parameter(
+                    'sms_id',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.FORMAT_INT64,
+                )
+            ],responses={},
+    )
+    
+    def get(self, request):
+        sms_id = request.query_params.get('sms_id')
+        sms_services = SendSmsServices(phone_number="phone_number")
+        a = sms_services.sms_status(sms_id=sms_id)
+        print(a)
+        return Response("user_serializer_data.data")
+
+class GetSmsListsAPIView(APIView):
+
+    def get(self, request):
+        sms_services = SendSmsServices(phone_number="phone_number")
+        response = sms_services.sms_lists()
+        return Response(response)
 
 
 class GetUserAPIView(APIView):
@@ -92,3 +158,24 @@ class UserStatisticQuestionAPIView(APIView):
         # Serialize and return the filtered users
         serializer = UserStatisticQuestionSerializer(users, many=True)
         return Response(serializer.data)
+    
+
+
+from rest_framework import serializers
+from users.models import SmsStatus
+
+class SmsStatusSerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(source='get_status_display')
+
+    class Meta:
+        model = SmsStatus
+        fields = ['user', 'sms_id', 'status', 'status_display']
+
+
+# views.py
+from rest_framework import generics
+
+
+class SmsStatusListAPIView(generics.ListAPIView):
+    queryset = SmsStatus.objects.all()
+    serializer_class = SmsStatusSerializer

@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Permission
 
 from my_app.models import User, Direction
-from users.models import Company, AdminTable
+from users.models import Company, AdminTable, SmsStatus
 from users.forms import *
 # Register your models here.
 
@@ -29,12 +29,12 @@ class UserAdmin(BaseUserAdmin):
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
     list_display = ('email', 'first_name', 'last_name', 'father_name', 'final_test','start_date', 'end_date', 'access','plan','phone_number',
-                    'organization', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count', 'direction_type')
+                    'organization', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'main_test_count', 'direction_type','is_verified')
     list_filter = ('is_admin',)
     # search_fields = []
     # autocomplete_fields = ["organization"]
     fieldsets = (
-        (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test','role','direction_type',
+        (None, {'fields': ('email', 'first_name', 'last_name', 'father_name','final_test','role','direction_type','is_verified',
                     'organization', 'password', 'main_test_count','start_date', 'end_date', 'access', 'plan', 'phone_number')}),
         
         ('Permissions', {'fields': ('is_admin','is_staff', 'is_superuser','groups','is_active')}),
@@ -46,7 +46,7 @@ class UserAdmin(BaseUserAdmin):
             'classes': ('wide',),
             'fields': ('email', 'first_name', 'last_name', 'password1', 'password2','father_name', 'final_test',
                     'organization', 'is_admin', 'is_staff','groups','is_superuser', 'is_active', 'main_test_count',
-                    'start_date', 'end_date', 'access', 'role', 'plan', 'phone_number'),
+                    'start_date', 'end_date', 'access', 'role', 'plan', 'phone_number','is_verified'),
         }),
     )
     search_fields = ('email',)
@@ -60,3 +60,4 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(Company)
 admin.site.register(Permission)
+admin.site.register(SmsStatus)
