@@ -3,7 +3,9 @@ from users.enums import ClosedTestEnum
 from users.models import Company, User
 from users.serializers.statistic_serializers import *
 from my_app.models import Statistic
-from users.services.user_access_limited_services import ProUserLimitedServices
+from users.services.user_access_limited_services import UserLimitedServices
+from users.repo.basic_user_repo import BasicUserRepo
+from users.repo.pro_user_repo import ProUserRepo
 
 # class UserCreateSerializer(serializers.ModelSerializer):
 #     class Meta:
@@ -80,8 +82,13 @@ class UserGetSerializer(serializers.ModelSerializer):
                    "groups", "user_permissions"]
     def get_closed_tests(self, obj):
         if obj.plan == User.PlanChoices.pro:
-            response = ProUserLimitedServices.user_limited(user=obj)
-            return response
+            user_limited_services = UserLimitedServices(repo=ProUserRepo)
+            response = user_limited_services.user_limited(user=obj)
+            
+        if obj.plan == User.PlanChoices.basic:
+            user_limited_services = UserLimitedServices(repo=BasicUserRepo)
+            response = user_limited_services.user_limited(user=obj)
+        return response
         
         
     # def get_final_test(self, obj):

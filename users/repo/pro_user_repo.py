@@ -58,9 +58,7 @@ class ProUserRepo(BaseRepo):
                 except:
                     return "smt wrong"
 
-    @classmethod
-    def check_finaly_test(cls, user):
-        return user.final_test
+
 
 
     @classmethod
@@ -84,13 +82,12 @@ class ProUserRepo(BaseRepo):
     def user_limited(cls,user, closed_test_list:list):
         check_after_200_question = super().check_user_answered_question_count(user=user)
         if not check_after_200_question:
-            closed_test_list.remove(ClosedTestEnum.not_decide.value)
-            
+            closed_test_list.remove(ClosedTestEnum.not_decide.value)       
         else:
             cls.static_question_finaly_test(user=user)
-
-        if cls.check_finaly_test(user=user):
-            closed_test_list.remove(ClosedTestEnum.final_test.value)
+            closed_test_list.append(ClosedTestEnum.not_decide.value)     
+            if not super().check_finaly_test(user=user):
+                closed_test_list.remove(ClosedTestEnum.final_test.value)
         return closed_test_list
 
 
