@@ -29,6 +29,11 @@ class ProUserRepo(BaseRepo):
                         super().statistic_model.objects.bulk_update(updated_statistics, ['category', 'correct_answers', 'incorrect_answers'])
                 except:
                     return "smt wrong"
+            else:
+                diff = user_answered_question_count - random_question_count
+                user.statistics.filter(
+                                category=super().statistic_model.CategoryChoices.TAMBILIREM
+                                )[:diff].delete()
 
             statistics_excluding_know =  super().statistic_model.objects.\
             exclude(category= super().statistic_model.CategoryChoices.TAMBILIREM).\
