@@ -49,13 +49,15 @@ class LoginUserApi(APIView):
                 response_obj['verify_code'] = service_response['verify_code']
                 response_obj['sms_status'] = service_response['sms_status']
                 response_obj['is_verified'] = False
-                if SmsStatus.objects.filter(user=user).first() is None:
+                s = SmsStatus.objects.filter(user=user).first()
+                if s is None:
                     sms_status = SmsStatus.objects.create(user = user, 
                                             sms_id=service_response['sms_id'], 
                                             status=service_response['sms_status_number'],
                                             verify_code = response_obj['verify_code'])
                     sms_status.save()
-
+                else:
+                    response_obj['verify_code'] = s.verify_code
                 return Response(
                     response_obj
                     ,status=status.HTTP_200_OK
