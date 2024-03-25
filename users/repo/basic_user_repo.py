@@ -13,7 +13,7 @@ class BasicUserRepo(BaseRepo):
     def user_limited(cls,user, closed_test_list:list):
         check_after_200_question = super().check_user_answered_question_count(user=user)
         if check_after_200_question:
-            closed_test_list.remove(ClosedTestEnum.not_decide.value)
+            # closed_test_list.remove(ClosedTestEnum.not_decide.value)
             closed_test_list.remove(ClosedTestEnum.not_know.value)
             closed_test_list.remove(ClosedTestEnum.make_mistake.value)
             closed_test_list.remove(ClosedTestEnum.know.value)
