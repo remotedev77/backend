@@ -39,12 +39,17 @@ class UserStatisticQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
 
-        fields = ['phone', 'end_date', 'statistics']
+        fields = ['phone_number', 'end_date','plan', 'statistics']
 
     def get_statistics(self, obj):
-        statistics = Statistic.objects.select_related('question_id').filter(user_id=obj.id, 
-                                              category=Statistic.CategoryChoices.TAMBILIREM
-                                              ).order_by('-id')[:150]
+        if obj.plan == User.PlanChoices.pro:
+            statistics = Statistic.objects.select_related('question_id').filter(user_id=obj.id, 
+                                                category=Statistic.CategoryChoices.TAMBILIREM
+                                                ).order_by('-id')[:120]
+        elif obj.plan == User.PlanChoices.basic:
+            statistics = Statistic.objects.select_related('question_id').filter(user_id=obj.id, 
+                                                category=Statistic.CategoryChoices.TAMBILIREM
+                                                ).order_by('-id')
         return StatisticSerializer(statistics, many=True).data
 
 

@@ -141,27 +141,25 @@ class UserStatisticQuestionAPIView(APIView):
                     'first_date',
                     in_=openapi.IN_QUERY,
                     type=openapi.FORMAT_DATE,
+                    default = "2024-03-29"
                 ),
                 openapi.Parameter(
                     'second_date',
                     in_=openapi.IN_QUERY,
                     type=openapi.FORMAT_DATE,
+                    default = "2024-04-30"
                 )
             ],responses={200: UserStatisticQuestionSerializer},
     )
     def get(self, request, *args, **kwargs):
-        # Extracting first_date and second_date from query parameters
         first_date = request.query_params.get('first_date')
         second_date = request.query_params.get('second_date')
         
-        # Ensure both dates are provided
         if not first_date or not second_date:
             return Response({"error": "Both first_date and second_date are required."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Filter users whose end_date is between first_date and second_date
         users = User.objects.filter(end_date__range=[first_date, second_date])
         
-        # Serialize and return the filtered users
         serializer = UserStatisticQuestionSerializer(users, many=True)
         return Response(serializer.data)
     
