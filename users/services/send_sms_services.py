@@ -27,7 +27,7 @@ class SendSmsServices:
             response_dict = json.loads(response.text)
             status = response_dict["data"]["status"]
             return status
-        return False
+        return None
 
     def sms_lists(self):
         end_point = "sms/testlist"
@@ -60,7 +60,7 @@ class SendSmsServices:
                 sms_id = json.loads(response.text)["data"]["id"]
                 send_obj['sms_id']=sms_id
                 sm_stat = self.sms_status(sms_id=sms_id)
-                message_status = MessageStatus.get_string_value(value=sm_stat) if sm_stat != False else False
+                message_status = MessageStatus.get_string_value(value=sm_stat) if sm_stat != None else False
                 response_dict = json.loads(response.text)
                 send_obj["sms_status_number"] = sm_stat
                 send_obj['sms_status'] = message_status

@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from users.enums import MessageStatus
 from users.permissions.user_verify_permission import UserVerifyPermission
 from users.serializers.users_serializers import UserCreateSerializer, UserGetSerializer, UserStatisticQuestionSerializer,\
 LoginUserSerializer, LoginUserResponseSerializer
@@ -110,9 +111,9 @@ class GetSmsStatusAPIView(APIView):
     def get(self, request):
         sms_id = request.query_params.get('sms_id')
         sms_services = SendSmsServices(phone_number="phone_number")
-        a = sms_services.sms_status(sms_id=sms_id)
-        print(a)
-        return Response("user_serializer_data.data")
+        s = sms_services.sms_status(sms_id=sms_id)
+        res = MessageStatus.get_string_value(value=s)
+        return Response(res)
 
 class GetSmsListsAPIView(APIView):
 
