@@ -1,6 +1,6 @@
 
 from django.contrib.auth import authenticate
-from rest_framework import status, serializers
+from rest_framework import status, serializers, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from admin_app.pagination import UserDocumentPagination
 from users.enums import MessageStatus
 from users.permissions.user_verify_permission import UserVerifyPermission
 from users.serializers.users_serializers import UserCreateSerializer, UserGetSerializer, UserStatisticQuestionSerializer,\
@@ -133,35 +134,17 @@ class GetUserAPIView(APIView):
         return Response(user_serializer_data.data)
 
 
-class UserStatisticQuestionAPIView(APIView):
-    @swagger_auto_schema(
-            manual_parameters=[
-                
-                openapi.Parameter(
-                    'first_date',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.FORMAT_DATE,
-                    default = "2024-03-29"
-                ),
-                openapi.Parameter(
-                    'second_date',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.FORMAT_DATE,
-                    default = "2024-04-30"
-                )
-            ],responses={200: UserStatisticQuestionSerializer},
-    )
-    def get(self, request, *args, **kwargs):
-        first_date = request.query_params.get('first_date')
-        second_date = request.query_params.get('second_date')
-        
+class UserStatisticQuestionAPIView(generics.ListAPIView):
+    serializer_class = UserStatisticQuestionSerializer
+    pagination_class = UserDocumentPagination
+    def get_queryset(self):
+        first_date = self.request.query_params.get('first_date')
+        second_date = self.request.query_params.get('second_date')
         if not first_date or not second_date:
-            return Response({"error": "Both first_date and second_date are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        users = User.objects.filter(end_date__range=[first_date, second_date])
-        
-        serializer = UserStatisticQuestionSerializer(users, many=True)
-        return Response(serializer.data)
+            raise serializers.ValidationError("Both first_date and second_date are required.")
+        return User.objects.filter(end_date__range=[first_date, second_date])
+    
+    
     
 
 

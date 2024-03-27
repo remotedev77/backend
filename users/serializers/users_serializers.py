@@ -34,12 +34,21 @@ class LoginUserResponseSerializer(serializers.Serializer):
 
 
 class UserStatisticQuestionSerializer(serializers.ModelSerializer):
-    statistics = serializers.SerializerMethodField()
 
+    PLAN_CHOICES = {
+        'базовый': 0,
+        'расширенный': 1
+    }
+    statistics = serializers.SerializerMethodField()
+    plan = serializers.SerializerMethodField()
     class Meta:
         model = User
 
         fields = ['phone_number', 'end_date','plan', 'statistics']
+
+
+    def get_plan(self, obj):
+        return self.PLAN_CHOICES.get(obj.plan)
 
     def get_statistics(self, obj):
         if obj.plan == User.PlanChoices.pro:
