@@ -136,13 +136,17 @@ class GetUserAPIView(APIView):
 
 class UserStatisticQuestionAPIView(generics.ListAPIView):
     serializer_class = UserStatisticQuestionSerializer
-    pagination_class = UserDocumentPagination
+    # pagination_class = UserDocumentPagination
     def get_queryset(self):
         first_date = self.request.query_params.get('first_date')
         second_date = self.request.query_params.get('second_date')
-        if not first_date or not second_date:
-            raise serializers.ValidationError("Both first_date and second_date are required.")
-        return User.objects.filter(end_date__range=[first_date, second_date])
+        skipCount = int(self.request.query_params.get('skipCount'))
+        maxResultCount = int(self.request.query_params.get('maxResultCount'))
+        if not (first_date or not second_date) and (not skipCount and not maxResultCount):
+            raise serializers.ValidationError("Params error")
+        if skipCount < 0 or maxResultCount < 0:
+            raise serializers.ValidationError("skipCount or maxResultCount can not be less than zero")
+        return User.objects.filter(end_date__range=[first_date, second_date])[skipCount: skipCount+maxResultCount]
     
     
     
